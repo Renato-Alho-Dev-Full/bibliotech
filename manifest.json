@@ -1,0 +1,21 @@
+{
+    "name": "Bibliotech - Estante Virtual",
+    "short_name": "Bibliotech",
+    "description": "Sistema Integrado de Biblioteca Acadêmica",
+    "start_url": "./leitor.html",
+    "display": "standalone",
+    "background_color": "#f8fafc",
+    "theme_color": "#6b21a8",
+    "icons": [
+        {
+            "src": "https://cdn-icons-png.flaticon.com/512/2232/2232688.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "https://cdn-icons-png.flaticon.com/512/2232/2232688.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
