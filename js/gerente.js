@@ -261,87 +261,156 @@ function atualizarInterfaceGerente() {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-function cadastrarLivro(e) {
+// ==========================================
+// CARREGAR DADOS DO SUPABASE
+// ==========================================
+async function carregarDadosDoBanco() {
+    try {
+        const { data: livros, error: errLivros } = await supabaseClient.from('livros').select('*');
+        const { data: emprestimos, error: errEmp } = await supabaseClient.from('emprestimos').select('*');
+
+        if (errLivros || errEmp) {
+            console.error('Erro ao buscar dados do Supabase:', errLivros || errEmp);
+            return { livros: [], emprestimos: [] };
+        }
+
+        return {
+            livros: livros.map(l => ({
+                id: l.codigo_livro,
+                bibliotecaNome: l.biblioteca_nome,
+                titulo: l.titulo,
+                autor: l.autor,
+                categoria: l.categoria,
+                foto: l.foto,
+                quantidadeTotal: l.quantidade_total,
+                sinopse: l.sinopse
+            })),
+            emprestimos: emprestimos.map(e => ({
+                id: e.codigo_emp,
+                livroId: e.livro_id,
+                livroTitulo: e.livro_titulo,
+                nome: e.nome_leitor,
+                cpf: e.cpf_leitor,
+                endereco: e.endereco_leitor,
+                data: e.data_emp,
+                status: e.status
+            }))
+        };
+    } catch (e) {
+        console.error('Erro de conexão:', e);
+        return { livros: [], emprestimos: [] };
+    }
+}
+
+// ==========================================
+// CADASTRAR LIVRO NO SUPABASE
+// ==========================================
+async function cadastrarLivro(e) {
     e.preventDefault();
     const fileInput = document.getElementById('livroFotoFile');
-    const urlInput = document.getElementById('livroFotoUrl') ? document.getElementById('livroFotoUrl').value.trim() : '';
-    const file = fileInput && fileInput.files ? fileInput.files[0] : null;
+    const file = fileInput.files[0];
     const dadosGerente = JSON.parse(localStorage.getItem('gerente_atual')) || { biblioteca: "Biblioteca Central" };
-
-    const salvarNoBanco = (imagemFinal) => {
-        const novo = {
-            id: 'LIV-' + Math.floor(1000 + Math.random() * 9000),
-            bibliotecaNome: dadosGerente.biblioteca,
-            titulo: document.getElementById('livroTitulo').value,
-            autor: document.getElementById('livroAutor').value,
-            categoria: document.getElementById('livroCategoria').value,
-            foto: imagemFinal || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400",
-            quantidadeTotal: Number(document.getElementById('livroQtd').value),
-            sinopse: document.getElementById('livroSinopse').value
-        };
-
-        db.livros.push(novo);
-        localStorage.setItem('bib_db', JSON.stringify(db));
-
-        document.getElementById('formLivro').reset();
-        const isbnFld = document.getElementById('isbnInput');
-        if (isbnFld) isbnFld.value = '';
-        const urlFld = document.getElementById('livroFotoUrl');
-        if (urlFld) urlFld.value = '';
-
-        atualizarInterfaceGerente();
-        mostrarToast(`Livro cadastrado com sucesso na ${dadosGerente.biblioteca}!`);
-    };
 
     if (file) {
         const reader = new FileReader();
-        reader.onload = function (event) {
-            salvarNoBanco(event.target.result);
+        reader.onload = async function (event) {
+            const base64Image = event.target.result;
+            const novoId = 'LIV-' + Math.floor(1000 + Math.random() * 9000);
+
+            const { error } = await supabaseClient.from('livros').insert([{
+                codigo_livro: novoId,
+                biblioteca_nome: dadosGerente.biblioteca,
+                titulo: document.getElementById('livroTitulo').value,
+                autor: document.getElementById('livroAutor').value,
+                categoria: document.getElementById('livroCategoria').value,
+                foto: base64Image,
+                quantidade_total: Number(document.getElementById('livroQtd').value),
+                sinopse: document.getElementById('livroSinopse').value
+            }]);
+
+            if (error) {
+                alert('Erro ao cadastrar livro no banco: ' + error.message);
+            } else {
+                document.getElementById('formLivro').reset();
+                atualizarInterfaceGerente();
+                alert(`Livro cadastrado com sucesso no Supabase! ID: ${novoId}`);
+            }
         };
         reader.readAsDataURL(file);
-    } else {
-        salvarNoBanco(urlInput || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400");
     }
 }
 
-function excluirLivro(id) {
-    if (confirm('Tem certeza que deseja excluir este livro?')) {
-        db.livros = db.livros.filter(l => l.id !== id);
-        localStorage.setItem('bib_db', JSON.stringify(db));
-        atualizarInterfaceGerente();
-    }
-}
-
-function registrarEmprestimo(e) {
+// ==========================================
+// REGISTRAR EMPRÉSTIMO NO SUPABASE
+// ==========================================
+async function registrarEmprestimo(e) {
     e.preventDefault();
     const idLivro = document.getElementById('empLivroId').value;
+
+    // Busca dados atuais do banco
+    const db = await carregarDadosDoBanco();
     const livro = db.livros.find(l => l.id === idLivro);
     if (!livro) return;
 
-    db.emprestimos.push({
-        id: 'EMP-' + Math.floor(1000 + Math.random() * 9000),
-        livroId: idLivro,
-        livroTitulo: livro.titulo,
-        nome: document.getElementById('empNome').value,
-        cpf: document.getElementById('empCpf').value,
-        endereco: document.getElementById('empEndereco').value,
-        data: new Date().toLocaleDateString('pt-BR'),
-        status: 'Ativo'
-    });
+    const ativosLivro = db.emprestimos.filter(emp => emp.livroId === idLivro && emp.status === 'Ativo').length;
+    if (ativosLivro >= livro.quantidadeTotal) {
+        alert('Todos os exemplares deste livro já estão emprestados!');
+        return;
+    }
 
-    localStorage.setItem('bib_db', JSON.stringify(db));
-    document.getElementById('formEmprestimo').reset();
-    atualizarInterfaceGerente();
-    mostrarToast('Empréstimo registrado com sucesso!');
+    const novoEmpId = 'EMP-' + Math.floor(1000 + Math.random() * 9000);
+    const { error } = await supabaseClient.from('emprestimos').insert([{
+        codigo_emp: novoEmpId,
+        livro_id: idLivro,
+        livro_titulo: livro.titulo,
+        nome_leitor: document.getElementById('empNome').value,
+        cpf_leitor: document.getElementById('empCpf').value,
+        endereco_leitor: document.getElementById('empEndereco').value,
+        data_emp: new Date().toLocaleDateString('pt-BR'),
+        status: 'Ativo'
+    }]);
+
+    if (error) {
+        alert('Erro ao registrar empréstimo: ' + error.message);
+    } else {
+        document.getElementById('formEmprestimo').reset();
+        atualizarInterfaceGerente();
+        alert('Empréstimo registrado com sucesso no Supabase!');
+    }
 }
 
-function darBaixaEmprestimo(empId) {
-    const emp = db.emprestimos.find(e => e.id === empId);
-    if (emp) {
-        emp.status = 'Devolvido';
-        localStorage.setItem('bib_db', JSON.stringify(db));
+// ==========================================
+// DAR BAIXA EM EMPRÉSTIMO (DEVOLUÇÃO)
+// ==========================================
+async function darBaixaEmprestimo(empId) {
+    const { error } = await supabaseClient
+        .from('emprestimos')
+        .update({ status: 'Devolvido' })
+        .eq('codigo_emp', empId);
+
+    if (error) {
+        alert('Erro ao atualizar devolução: ' + error.message);
+    } else {
         atualizarInterfaceGerente();
-        mostrarToast('Devolução confirmada!');
+        alert('Devolução confirmada no banco de dados!');
+    }
+}
+
+// ==========================================
+// EXCLUIR LIVRO
+// ==========================================
+async function excluirLivro(id) {
+    if (confirm('Tem certeza que deseja excluir este livro do Supabase?')) {
+        const { error } = await supabaseClient
+            .from('livros')
+            .delete()
+            .eq('codigo_livro', id);
+
+        if (error) {
+            alert('Erro ao excluir: ' + error.message);
+        } else {
+            atualizarInterfaceGerente();
+        }
     }
 }
 

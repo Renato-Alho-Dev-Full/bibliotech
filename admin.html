@@ -38,18 +38,20 @@
     <!-- TELA DE LOGIN DO ADMIN -->
     <div id="loginSection" class="min-h-screen flex items-center justify-center p-4">
         <div
-            class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-purple-200 dark:border-purple-500/30 p-8 rounded-3xl shadow-2xl max-w-md w-full">
+            class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-purple-200 dark:border-purple-500/30 p-8 rounded-3xl shadow-2xl max-w-md w-full transition-colors duration-300">
             <div class="text-center mb-6">
                 <div
-                    class="w-16 h-16 bg-gradient-to-tr from-sky-500 via-purple-600 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                    class="w-16 h-16 bg-gradient-to-tr from-sky-500 via-purple-600 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-purple-500/20 dark:shadow-purple-500/40">
                     <i data-lucide="shield-check" class="w-9 h-9 text-white"></i>
                 </div>
                 <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white">Keven Admin Master</h1>
                 <p class="text-xs text-purple-600 dark:text-purple-400 font-semibold mt-1">Plataforma SaaS
-                    Multi-Biblioteca</p>
+                    Multi-Biblioteca
+                </p>
             </div>
 
-            <form onsubmit="fazerLoginAdmin(event)" class="space-y-4">
+            <!-- FORMULÁRIO BLINDADO -->
+            <form id="formAdminLogin" onsubmit="fazerLoginAdmin(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Usuário
                         Administrador</label>
@@ -63,20 +65,23 @@
                         class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
                 </div>
                 <button type="submit"
-                    class="w-full bg-gradient-to-r from-sky-600 via-purple-600 to-pink-600 hover:opacity-95 text-white font-bold py-3 rounded-xl shadow-lg transition">
+                    class="w-full bg-gradient-to-r from-sky-600 via-purple-600 to-pink-600 hover:opacity-95 text-white font-bold py-3 rounded-xl shadow-lg transition transform active:scale-95">
                     Acessar Painel Master
                 </button>
             </form>
+
             <div id="erroLoginAdmin"
-                class="hidden mt-4 p-3 bg-red-50 text-red-600 text-xs text-center rounded-xl font-semibold"></div>
-            <p class="text-[10px] text-center text-slate-400 mt-4">Padrão: admin / admin123</p>
+                class="hidden mt-4 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 text-xs text-center rounded-xl font-semibold">
+            </div>
+            <p class="text-[10px] text-center text-slate-400 dark:text-slate-500 mt-4">Padrão: admin / admin123</p>
         </div>
     </div>
 
     <!-- PAINEL ADMINISTRATIVO MASTER -->
     <div id="panelSection" class="hidden min-h-screen flex flex-col">
+        <!-- HEADER COM LOGO, MENU E DARK MODE -->
         <header
-            class="bg-white/90 dark:bg-slate-900/90 backdrop-blur border-b border-purple-100 dark:border-purple-900/50 sticky top-0 z-40 px-6 py-4 flex justify-between items-center shadow-sm">
+            class="bg-white/90 dark:bg-slate-900/90 backdrop-blur border-b border-purple-100 dark:border-purple-900/50 sticky top-0 z-40 px-6 py-4 flex justify-between items-center shadow-sm transition-colors duration-300">
             <div class="flex items-center gap-3">
                 <div
                     class="w-10 h-10 bg-gradient-to-tr from-sky-500 to-purple-600 rounded-xl flex items-center justify-center shadow">
@@ -90,50 +95,61 @@
             </div>
             <div class="flex items-center gap-4">
                 <button onclick="toggleDarkMode()"
-                    class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-sky-300 transition">
+                    class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-sky-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
                     <i data-lucide="moon" id="themeIcon" class="w-4 h-4"></i>
                 </button>
+
                 <button onclick="logoutAdmin()"
-                    class="bg-pink-100 dark:bg-pink-500/20 text-pink-700 dark:text-pink-300 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
+                    class="bg-pink-100 dark:bg-pink-500/20 hover:bg-pink-200 dark:hover:bg-pink-500/30 text-pink-700 dark:text-pink-300 border border-pink-200 dark:border-pink-500/30 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
                     <i data-lucide="log-out" class="w-4 h-4"></i> Desconectar
                 </button>
             </div>
         </header>
 
         <main class="max-w-7xl mx-auto p-6 space-y-8 flex-1 w-full">
-            <!-- INDICADORES -->
+            <!-- DASHBOARD DE INDICADORES -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div
-                    class="bg-white dark:bg-slate-900 border border-sky-100 dark:border-sky-500/20 p-6 rounded-3xl shadow-md">
-                    <p class="text-sky-600 text-xs font-bold uppercase">Gerentes / Clientes Ativos</p>
-                    <h3 id="statGerentes" class="text-4xl font-extrabold mt-2">0</h3>
+                    class="bg-white dark:bg-slate-900 border border-sky-100 dark:border-sky-500/20 p-6 rounded-3xl shadow-md relative overflow-hidden transition-colors">
+                    <p class="text-sky-600 dark:text-sky-400 text-xs font-bold uppercase tracking-wider">Gerentes /
+                        Clientes
+                        Ativos</p>
+                    <h3 id="statGerentes" class="text-4xl font-extrabold text-slate-900 dark:text-white mt-2">0</h3>
                 </div>
                 <div
-                    class="bg-white dark:bg-slate-900 border border-purple-100 dark:border-purple-500/20 p-6 rounded-3xl shadow-md">
-                    <p class="text-purple-600 text-xs font-bold uppercase">Licenças Vigentes</p>
-                    <h3 id="statLicencas" class="text-4xl font-extrabold text-purple-700 mt-2">0</h3>
+                    class="bg-white dark:bg-slate-900 border border-purple-100 dark:border-purple-500/20 p-6 rounded-3xl shadow-md relative overflow-hidden transition-colors">
+                    <p class="text-purple-600 dark:text-purple-400 text-xs font-bold uppercase tracking-wider">Licenças
+                        Vigentes</p>
+                    <h3 id="statLicencas" class="text-4xl font-extrabold text-purple-700 dark:text-purple-300 mt-2">0
+                    </h3>
                 </div>
                 <div
-                    class="bg-white dark:bg-slate-900 border border-pink-100 dark:border-pink-500/20 p-6 rounded-3xl shadow-md">
-                    <p class="text-pink-600 text-xs font-bold uppercase">Faturamento (PDV)</p>
-                    <h3 id="statFaturamento" class="text-4xl font-extrabold text-pink-600 mt-2">R$ 0</h3>
+                    class="bg-white dark:bg-slate-900 border border-pink-100 dark:border-pink-500/20 p-6 rounded-3xl shadow-md relative overflow-hidden transition-colors">
+                    <p class="text-pink-600 dark:text-pink-400 text-xs font-bold uppercase tracking-wider">Faturamento
+                        (PDV)
+                    </p>
+                    <h3 id="statFaturamento" class="text-4xl font-extrabold text-pink-600 dark:text-pink-400 mt-2">R$ 0
+                    </h3>
                 </div>
                 <div
-                    class="bg-white dark:bg-slate-900 border border-sky-100 dark:border-sky-500/20 p-6 rounded-3xl shadow-md flex flex-col justify-center">
-                    <p class="text-slate-500 text-xs font-bold uppercase mb-1">Status da Engine</p>
+                    class="bg-white dark:bg-slate-900 border border-sky-100 dark:border-sky-500/20 p-6 rounded-3xl shadow-md flex flex-col justify-center transition-colors">
+                    <p class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase mb-1">Status da Engine</p>
                     <span
-                        class="inline-flex items-center gap-1.5 text-green-700 font-bold text-sm bg-green-50 px-3 py-1 rounded-full border border-green-200 w-fit">
-                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Sincronizado
+                        class="inline-flex items-center gap-1.5 text-green-700 dark:text-green-400 font-bold text-sm bg-green-50 dark:bg-green-500/10 px-3 py-1 rounded-full border border-green-200 dark:border-green-500/20 w-fit">
+                        <span class="w-2 h-2 rounded-full bg-green-500 dark:bg-green-400 animate-pulse"></span> Supabase
+                        Ativo
                     </span>
                 </div>
             </div>
 
-            <!-- PDV E CADASTRO -->
+            <!-- SEÇÃO DUPLA: PDV E CADASTRO -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- PDV DE VENDAS -->
                 <div
-                    class="bg-white dark:bg-slate-900 border border-sky-100 dark:border-sky-500/20 p-6 rounded-3xl shadow-md">
-                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="shopping-cart"
-                            class="text-sky-600"></i> PDV - Assinaturas</h2>
+                    class="bg-white dark:bg-slate-900 border border-sky-100 dark:border-sky-500/20 p-6 rounded-3xl shadow-md transition-colors">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                        <i data-lucide="shopping-cart" class="text-sky-600 dark:text-sky-400"></i> PDV - Assinaturas
+                    </h2>
                     <form onsubmit="realizarVendaPDV(event)" class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Gerente /
@@ -150,8 +166,9 @@
                                 <select id="pdvMeses" required
                                     class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-3 rounded-xl text-slate-900 dark:text-white">
                                     <option value="1">1 Mês (R$ 97,00)</option>
+                                    <option value="4">4 Meses (R$ 350,00)</option>
                                     <option value="6">6 Meses (R$ 500,00)</option>
-                                    <option value="12">12 Meses (R$ 900,00)</option>
+                                    <option value="12">12 Meses - Anual (R$ 900,00)</option>
                                 </select>
                             </div>
                             <div>
@@ -165,20 +182,23 @@
                             </div>
                         </div>
                         <button type="submit"
-                            class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl transition">Processar
-                            Venda & Ativar Licença</button>
+                            class="w-full bg-gradient-to-r from-sky-600 to-purple-600 hover:opacity-95 text-white font-bold py-3 rounded-xl transition shadow-md">
+                            Processar Venda & Ativar Licença
+                        </button>
                     </form>
                 </div>
 
+                <!-- CADASTRO DE GERENTE -->
                 <div
-                    class="bg-white dark:bg-slate-900 border border-purple-100 dark:border-purple-500/20 p-6 rounded-3xl shadow-md">
-                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="user-plus"
-                            class="text-purple-600"></i> Cadastrar Gerente</h2>
+                    class="bg-white dark:bg-slate-900 border border-purple-100 dark:border-purple-500/20 p-6 rounded-3xl shadow-md transition-colors">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                        <i data-lucide="user-plus" class="text-purple-600 dark:text-purple-400"></i> Cadastrar Gerente
+                    </h2>
                     <form onsubmit="cadastrarGerente(event)" class="space-y-3">
                         <div>
                             <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Nome da
                                 Biblioteca</label>
-                            <input type="text" id="cadBibNome" placeholder="Ex: Biblioteca Municipal" required
+                            <input type="text" id="cadBibNome" placeholder="Ex: Biblioteca Central" required
                                 class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-2.5 rounded-xl text-slate-900 dark:text-white">
                         </div>
                         <div class="grid grid-cols-2 gap-3">
@@ -197,31 +217,45 @@
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-xs font-bold text-sky-600 dark:text-sky-400 mb-1">Login</label>
-                                <input type="text" id="cadUserLogin" placeholder="Ex: gerente1" required
+                                <label class="block text-xs font-bold text-sky-600 dark:text-sky-400 mb-1">Login do
+                                    Gerente</label>
+                                <input type="text" id="cadUserLogin" placeholder="Ex: admin" required
                                     class="w-full bg-slate-50 dark:bg-slate-950 border border-sky-200 dark:border-sky-500/30 p-2.5 rounded-xl text-slate-900 dark:text-white font-mono text-xs">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-sky-600 dark:text-sky-400 mb-1">Senha</label>
-                                <input type="text" id="cadUserSenha" placeholder="Ex: 123" required
+                                <label class="block text-xs font-bold text-sky-600 dark:text-sky-400 mb-1">Senha de
+                                    Acesso</label>
+                                <input type="text" id="cadUserSenha" placeholder="Ex: senha123" required
                                     class="w-full bg-slate-50 dark:bg-slate-950 border border-sky-200 dark:border-sky-500/30 p-2.5 rounded-xl text-slate-900 dark:text-white font-mono text-xs">
                             </div>
                         </div>
                         <button type="submit"
-                            class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition mt-2">Salvar
-                            no CRM</button>
+                            class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-95 text-white font-bold py-3 rounded-xl transition shadow-md mt-2">
+                            Salvar no CRM
+                        </button>
                     </form>
                 </div>
             </div>
 
-            <!-- CRM TABELA -->
+            <!-- CRM COM EDITAR E EXCLUIR -->
             <div
-                class="bg-white dark:bg-slate-900 border border-purple-100 dark:border-purple-500/20 p-6 rounded-3xl shadow-md pb-10">
-                <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="users"
-                        class="text-pink-600"></i> CRM & Gestão de Clientes</h2>
+                class="bg-white dark:bg-slate-900 border border-purple-100 dark:border-purple-500/20 p-6 rounded-3xl shadow-md pb-10 transition-colors">
+                <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i data-lucide="users" class="text-pink-600 dark:text-pink-400"></i> CRM & Gestão de
+                            Clientes
+                        </h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Gerencie acessos, licenças, edite ou
+                            remova
+                            gerentes.</p>
+                    </div>
+                </div>
+
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-slate-700 dark:text-slate-300">
-                        <thead class="bg-slate-100 dark:bg-slate-950 text-xs uppercase">
+                        <thead
+                            class="bg-slate-100 dark:bg-slate-950 text-slate-600 dark:text-slate-400 text-xs uppercase">
                             <tr>
                                 <th class="p-3">Biblioteca / Gerente</th>
                                 <th class="p-3">Credenciais</th>
@@ -231,14 +265,65 @@
                                 <th class="p-3 text-right">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="tabelaCrmGerentes" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+                        <tbody id="tabelaCrmGerentes" class="divide-y divide-slate-100 dark:divide-slate-800">
+                            <!-- Injetado via JS -->
+                        </tbody>
                     </table>
                 </div>
             </div>
+
         </main>
     </div>
 
+    <!-- MODAL DE EDIÇÃO DE GERENTE -->
+    <div id="modalEditar"
+        class="fixed inset-0 bg-black/60 hidden backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 relative shadow-2xl transition-colors">
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                <i data-lucide="edit" class="text-purple-600 dark:text-purple-400"></i> Editar Gerente
+            </h2>
+            <form onsubmit="salvarEdicaoGerente(event)" class="space-y-3">
+                <input type="hidden" id="editGerenteId">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Nome da
+                        Biblioteca</label>
+                    <input type="text" id="editBibNome" required
+                        class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-2.5 rounded-xl text-slate-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Nome do
+                        Responsável</label>
+                    <input type="text" id="editGerenteNome" required
+                        class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-2.5 rounded-xl text-slate-900 dark:text-white">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-sky-600 dark:text-sky-400 mb-1">Login</label>
+                        <input type="text" id="editUserLogin" required
+                            class="w-full bg-slate-50 dark:bg-slate-950 border border-sky-200 dark:border-sky-500/30 p-2.5 rounded-xl text-slate-900 dark:text-white font-mono text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-sky-600 dark:text-sky-400 mb-1">Nova Senha</label>
+                        <input type="text" id="editUserSenha" required
+                            class="w-full bg-slate-50 dark:bg-slate-950 border border-sky-200 dark:border-sky-500/30 p-2.5 rounded-xl text-slate-900 dark:text-white font-mono text-xs">
+                    </div>
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button type="button" onclick="fecharModalEdicao()"
+                        class="w-1/2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold py-3 rounded-xl transition">Cancelar</button>
+                    <button type="submit"
+                        class="w-1/2 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition">Salvar
+                        Mudanças</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SDK Oficial do Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+
+        // CONFIGURAÇÃO DO DARK MODE
         function applyTheme() {
             if (localStorage.getItem('keven_theme') === 'dark') {
                 document.documentElement.classList.add('dark');
@@ -249,6 +334,7 @@
             }
             lucide.createIcons();
         }
+
         function toggleDarkMode() {
             if (document.documentElement.classList.contains('dark')) {
                 document.documentElement.classList.remove('dark');
@@ -259,25 +345,55 @@
             }
             applyTheme();
         }
+
         applyTheme();
 
-        let masterDb = JSON.parse(localStorage.getItem('keven_master_db')) || {
-            gerentes: [
-                { id: "MGR-101", biblioteca: "Biblioteca Central", gerente: "Ana Souza", email: "ana@bib.com", usuario: "gerente", senha: "123", dataEntrada: "10/01/2026", pagamento: "Pago", validade: "10/01/2027" }
-            ],
-            vendas: []
-        };
+        // BUSCAR DADOS DO SUPABASE (Gerentes e Vendas)
+        async function carregarDadosAdmin() {
+            const { data: gerentes, error: errG } = await supabaseClient.from('gerentes').select('*');
+            const { data: vendas, error: errV } = await supabaseClient.from('vendas').select('*');
 
+            if (errG || errV) {
+                console.error('Erro ao carregar dados do admin:', errG || errV);
+                return { gerentes: [], vendas: [] };
+            }
+
+            return {
+                gerentes: gerentes.map(g => ({
+                    id: g.codigo_mgr,
+                    biblioteca: g.biblioteca,
+                    gerente: g.gerente,
+                    email: g.email,
+                    usuario: g.usuario,
+                    senha: g.senha,
+                    dataEntrada: g.data_entrada,
+                    pagamento: g.pagamento,
+                    validade: g.validade
+                })),
+                vendas: vendas.map(v => ({
+                    id: v.codigo_venda,
+                    biblioteca: v.biblioteca,
+                    valor: Number(v.valor),
+                    data: v.data_venda
+                }))
+            };
+        }
+
+        // LOGIN DO ADMIN MASTER
         function fazerLoginAdmin(e) {
             e.preventDefault();
             const u = document.getElementById('userAdmin').value.trim();
             const p = document.getElementById('passAdmin').value.trim();
+            const erroDiv = document.getElementById('erroLoginAdmin');
+
             if (u === 'admin' && p === 'admin123') {
-                localStorage.setItem('admin_logado', 'true');
+                try { localStorage.setItem('admin_logado', 'true'); } catch (err) { }
+                erroDiv.classList.add('hidden');
                 mostrarPainel();
             } else {
-                document.getElementById('erroLoginAdmin').innerText = "Credenciais incorretas!";
-                document.getElementById('erroLoginAdmin').classList.remove('hidden');
+                erroDiv.innerHTML = `<i data-lucide="x-circle" class="inline w-4 h-4 mr-1"></i> Credenciais incorretas!`;
+                erroDiv.classList.remove('hidden');
+                lucide.createIcons();
             }
         }
 
@@ -285,43 +401,62 @@
             document.getElementById('loginSection').classList.add('hidden');
             document.getElementById('panelSection').classList.remove('hidden');
             atualizarMasterUI();
+            lucide.createIcons();
         }
 
         function logoutAdmin() {
-            localStorage.removeItem('admin_logado');
+            try { localStorage.removeItem('admin_logado'); } catch (err) { }
             location.reload();
         }
 
-        function atualizarMasterUI() {
-            localStorage.setItem('keven_master_db', JSON.stringify(masterDb));
-            document.getElementById('statGerentes').innerText = masterDb.gerentes.length;
-            document.getElementById('statLicencas').innerText = masterDb.gerentes.filter(g => g.pagamento === 'Pago').length;
-            const totalFat = masterDb.vendas.reduce((acc, v) => acc + v.valor, 0);
+        async function atualizarMasterUI() {
+            const db = await carregarDadosAdmin();
+
+            document.getElementById('statGerentes').innerText = db.gerentes.length;
+            document.getElementById('statLicencas').innerText = db.gerentes.filter(g => g.pagamento === 'Pago').length;
+            const totalFat = db.vendas.reduce((acc, v) => acc + v.valor, 0);
             document.getElementById('statFaturamento').innerText = 'R$ ' + totalFat.toLocaleString('pt-BR');
 
             const select = document.getElementById('pdvGerenteId');
-            select.innerHTML = '<option value="">Escolha um cliente...</option>' +
-                masterDb.gerentes.map(g => `<option value="${g.id}">${g.biblioteca} (${g.gerente})</option>`).join('');
+            select.innerHTML = '<option value="">Escolha um cliente cadastrado...</option>' +
+                db.gerentes.map(g => `<option value="${g.id}">${g.biblioteca} (${g.gerente})</option>`).join('');
 
             const tbody = document.getElementById('tabelaCrmGerentes');
-            if (masterDb.gerentes.length === 0) {
+            if (db.gerentes.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Nenhum gerente cadastrado.</td></tr>`;
             } else {
-                tbody.innerHTML = masterDb.gerentes.map(g => `
-                    <tr>
-                        <td class="p-3"><b>${g.biblioteca}</b><br><span class="text-xs text-purple-600">${g.gerente}</span></td>
-                        <td class="p-3 font-mono text-xs">U: ${g.usuario}<br>P: ${g.senha}</td>
-                        <td class="p-3"><span class="px-2 py-1 text-[10px] font-bold rounded-full ${g.pagamento === 'Pago' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">${g.pagamento}</span></td>
-                        <td class="p-3 text-xs font-mono">${g.validade}</td>
+                tbody.innerHTML = db.gerentes.map(g => `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition">
+                        <td class="p-3">
+                            <b class="text-slate-900 dark:text-white">${g.biblioteca}</b><br>
+                            <span class="text-xs text-purple-600 dark:text-purple-400">${g.gerente}</span>
+                        </td>
+                        <td class="p-3 font-mono text-xs">
+                            <span class="text-sky-700 dark:text-sky-400">U: ${g.usuario}</span><br>
+                            <span class="text-pink-600 dark:text-pink-400">P: ${g.senha}</span>
+                        </td>
+                        <td class="p-3">
+                            <span class="px-2 py-1 text-[10px] font-bold rounded-full ${g.pagamento === 'Pago' ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400'}">
+                                ${g.pagamento}
+                            </span>
+                        </td>
+                        <td class="p-3 text-xs font-mono text-purple-700 dark:text-purple-400">${g.validade}</td>
                         <td class="p-3 text-center">
                             <div class="inline-flex gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
-                                <button onclick="estenderLicenca('${g.id}', 1)" class="px-2 py-1 font-bold text-[10px]">+1</button>
-                                <button onclick="estenderLicenca('${g.id}', 6)" class="px-2 py-1 font-bold text-[10px]">+6</button>
-                                <button onclick="estenderLicenca('${g.id}', 12)" class="px-2 py-1 font-bold text-[10px]">+12</button>
+                                <button onclick="estenderLicenca('${g.id}', 1)" class="px-1.5 py-1 text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 font-bold text-[10px]">+1</button>
+                                <button onclick="estenderLicenca('${g.id}', 6)" class="px-1.5 py-1 text-slate-600 dark:text-slate-300 hover:text-pink-600 dark:hover:text-pink-400 font-bold text-[10px]">+6</button>
+                                <button onclick="estenderLicenca('${g.id}', 12)" class="px-1.5 py-1 text-slate-600 dark:text-slate-300 hover:text-green-600 dark:hover:text-green-400 font-bold text-[10px]">+12</button>
                             </div>
                         </td>
                         <td class="p-3 text-right">
-                            <button onclick="excluirGerente('${g.id}')" class="p-2 bg-red-100 text-red-700 rounded-lg text-xs font-bold"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            <div class="inline-flex gap-2">
+                                <button onclick="abrirModalEdicao('${g.id}')" class="p-2 bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-500/40 rounded-lg transition" title="Editar">
+                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="excluirGerente('${g.id}')" class="p-2 bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-500/40 rounded-lg transition" title="Apagar Gerente">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `).join('');
@@ -329,61 +464,144 @@
             lucide.createIcons();
         }
 
-        function cadastrarGerente(e) {
+        async function excluirGerente(id) {
+            if (confirm("Tem certeza que deseja apagar este gerente? O acesso à biblioteca será revogado imediatamente.")) {
+                const { error } = await supabaseClient.from('gerentes').delete().eq('codigo_mgr', id);
+                if (error) {
+                    alert('Erro ao excluir: ' + error.message);
+                } else {
+                    atualizarMasterUI();
+                }
+            }
+        }
+
+        async function abrirModalEdicao(id) {
+            const db = await carregarDadosAdmin();
+            const g = db.gerentes.find(item => item.id === id);
+            if (g) {
+                document.getElementById('editGerenteId').value = g.id;
+                document.getElementById('editBibNome').value = g.biblioteca;
+                document.getElementById('editGerenteNome').value = g.gerente;
+                document.getElementById('editUserLogin').value = g.usuario;
+                document.getElementById('editUserSenha').value = g.senha;
+                document.getElementById('modalEditar').classList.remove('hidden');
+            }
+        }
+
+        function fecharModalEdicao() {
+            document.getElementById('modalEditar').classList.add('hidden');
+        }
+
+        async function salvarEdicaoGerente(e) {
             e.preventDefault();
-            const novo = {
-                id: 'MGR-' + Math.floor(100 + Math.random() * 900),
+            const id = document.getElementById('editGerenteId').value;
+
+            const { error } = await supabaseClient.from('gerentes').update({
+                biblioteca: document.getElementById('editBibNome').value,
+                gerente: document.getElementById('editGerenteNome').value,
+                usuario: document.getElementById('editUserLogin').value,
+                senha: document.getElementById('editUserSenha').value
+            }).eq('codigo_mgr', id);
+
+            if (error) {
+                alert('Erro ao atualizar: ' + error.message);
+            } else {
+                fecharModalEdicao();
+                atualizarMasterUI();
+                alert("Dados atualizados com sucesso no Supabase!");
+            }
+        }
+
+        async function cadastrarGerente(e) {
+            e.preventDefault();
+            const novoId = 'MGR-' + Math.floor(100 + Math.random() * 900);
+
+            const { error } = await supabaseClient.from('gerentes').insert([{
+                codigo_mgr: novoId,
                 biblioteca: document.getElementById('cadBibNome').value,
                 gerente: document.getElementById('cadGerenteNome').value,
                 email: document.getElementById('cadEmail').value,
                 usuario: document.getElementById('cadUserLogin').value,
                 senha: document.getElementById('cadUserSenha').value,
-                dataEntrada: new Date().toLocaleDateString('pt-BR'),
+                data_entrada: new Date().toLocaleDateString('pt-BR'),
                 pagamento: 'Pendente',
-                validade: 'Pendente'
-            };
-            masterDb.gerentes.push(novo);
-            document.querySelector('form').reset();
-            atualizarMasterUI();
-            alert('Gerente cadastrado com sucesso!');
-        }
+                validade: 'Pendente (Aguardando)'
+            }]);
 
-        function excluirGerente(id) {
-            if (confirm("Tem certeza que deseja apagar este gerente?")) {
-                masterDb.gerentes = masterDb.gerentes.filter(g => g.id !== id);
+            if (error) {
+                alert('Erro ao cadastrar gerente: ' + error.message);
+            } else {
+                document.getElementById('cadBibNome').value = '';
+                document.getElementById('cadGerenteNome').value = '';
+                document.getElementById('cadEmail').value = '';
+                document.getElementById('cadUserLogin').value = '';
+                document.getElementById('cadUserSenha').value = '';
                 atualizarMasterUI();
+                alert('Gerente cadastrado com sucesso no Supabase!');
             }
         }
 
-        function realizarVendaPDV(e) {
+        async function realizarVendaPDV(e) {
             e.preventDefault();
-            const id = document.getElementById('pdvGerenteId').value;
+            const idGerente = document.getElementById('pdvGerenteId').value;
             const meses = Number(document.getElementById('pdvMeses').value);
-            const status = document.getElementById('pdvStatusPgto').value;
-            const g = masterDb.gerentes.find(item => item.id === id);
-            if (!g) return;
+            const statusPgto = document.getElementById('pdvStatusPgto').value;
 
-            const val = new Date();
-            val.setMonth(val.getMonth() + meses);
-            g.validade = val.toLocaleDateString('pt-BR');
-            g.pagamento = status;
-            masterDb.vendas.push({ id: 'VD-' + Math.random(), biblioteca: g.biblioteca, valor: meses * 90, data: new Date().toLocaleDateString('pt-BR') });
+            const db = await carregarDadosAdmin();
+            const gerente = db.gerentes.find(g => g.id === idGerente);
+            if (!gerente) return;
+
+            const precos = { 1: 97, 4: 350, 6: 500, 12: 900 };
+            const dataVal = new Date();
+            dataVal.setMonth(dataVal.getMonth() + meses);
+            const novaValidade = dataVal.toLocaleDateString('pt-BR');
+
+            // Atualiza licença no Supabase
+            await supabaseClient.from('gerentes').update({
+                validade: novaValidade,
+                pagamento: statusPgto
+            }).eq('codigo_mgr', idGerente);
+
+            // Registra a venda
+            await supabaseClient.from('vendas').insert([{
+                codigo_venda: 'VD-' + Math.floor(1000 + Math.random() * 9000),
+                biblioteca: gerente.biblioteca,
+                valor: precos[meses] || 100,
+                data_venda: new Date().toLocaleDateString('pt-BR')
+            }]);
+
             atualizarMasterUI();
-            alert('Licença ativada com sucesso!');
+            alert(`Licença de ${meses} meses ativada com sucesso!`);
         }
 
-        function estenderLicenca(id, meses) {
-            const g = masterDb.gerentes.find(item => item.id === id);
+        async function estenderLicenca(gerenteId, meses) {
+            const db = await carregarDadosAdmin();
+            const g = db.gerentes.find(item => item.id === gerenteId);
             if (g) {
-                let d = new Date();
-                d.setMonth(d.getMonth() + meses);
-                g.validade = d.toLocaleDateString('pt-BR');
-                g.pagamento = 'Pago';
+                let baseDate = new Date();
+                if (g.validade && !g.validade.includes('Pendente')) {
+                    const partes = g.validade.split('/');
+                    const parsed = new Date(partes[2], partes[1] - 1, partes[0]);
+                    if (parsed > baseDate) baseDate = parsed;
+                }
+                baseDate.setMonth(baseDate.getMonth() + meses);
+                const novaVal = baseDate.toLocaleDateString('pt-BR');
+
+                await supabaseClient.from('gerentes').update({
+                    validade: novaVal,
+                    pagamento: 'Pago'
+                }).eq('codigo_mgr', gerenteId);
+
                 atualizarMasterUI();
             }
         }
 
-        if (localStorage.getItem('admin_logado') === 'true') mostrarPainel();
+        try {
+            if (localStorage.getItem('admin_logado') === 'true') {
+                mostrarPainel();
+            }
+        } catch (err) { }
+
         lucide.createIcons();
     </script>
 </body>
