@@ -31,184 +31,192 @@
 
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-    <!-- HERO HEADER COM PARALLAX -->
-    <header class="parallax-user text-white py-12 px-6 shadow-xl relative">
+    <!-- HEADER / HERO -->
+    <header class="bg-gradient-to-r from-purple-800 to-indigo-900 text-white py-10 px-6 shadow-xl relative">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
             <div class="space-y-2 text-center md:text-left">
-                <div
-                    class="inline-flex items-center gap-2 bg-purple-500/30 border border-purple-300/30 px-3 py-1 rounded-full text-xs font-semibold text-purple-200">
-                    <i data-lucide="book-open" class="w-4 h-4"></i> Acervo Público Acadêmico
-                </div>
-                <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">Seja bem vindo a Bibliotech</h1>
-                <p class="text-purple-200 text-sm max-w-xl">Navegue pelas categorias, consulte a disponibilidade em
-                    tempo
-                    real e verifique detalhes completos de cada livro.</p>
+                <span
+                    class="bg-purple-500/30 border border-purple-300/30 px-3 py-1 rounded-full text-xs font-semibold text-purple-200">Acervo
+                    Público Acadêmico</span>
+                <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">Seja bem-vindo à Bibliotech</h1>
+                <p class="text-purple-200 text-sm">Consulte a disponibilidade em tempo real e escolha sua unidade.</p>
             </div>
-            <!-- Barra de Busca Moderna -->
+
+            <!-- Barra de Busca Avançada -->
             <div class="relative w-full md:w-80">
-                <input type="text" id="searchInput" oninput="filtrarLivros()" placeholder="Buscar título ou autor..."
+                <input type="text" id="searchInput" oninput="filtrarLivros()" placeholder="Buscar título, autor..."
                     class="w-full pl-11 pr-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-purple-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-white">
                 <i data-lucide="search" class="w-5 h-5 text-purple-200 absolute left-3.5 top-3.5"></i>
             </div>
         </div>
     </header>
 
-    <!-- MENU RESPONSIVO DE CATEGORIAS -->
-    <nav class="bg-white border-b shadow-sm py-4 px-6 sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto flex items-center overflow-x-auto gap-3 no-scrollbar" id="categoryContainer">
-            <!-- Categorias geradas via JS -->
+    <!-- SELETOR DE UNIDADES E CATEGORIAS -->
+    <div class="max-w-7xl mx-auto px-6 pt-6 w-full flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="bg-white p-3 rounded-2xl shadow-sm border border-purple-100 flex items-center gap-3 w-full md:w-80">
+            <i data-lucide="map-pin" class="w-5 h-5 text-purple-600"></i>
+            <select id="selectBibliotecaLeitor" onchange="mudarBiblioteca(this.value)"
+                class="bg-transparent text-xs font-bold text-slate-700 focus:outline-none w-full cursor-pointer">
+                <option value="Todas">Todas as Bibliotecas</option>
+            </select>
         </div>
-    </nav>
 
-    <!-- GRID DE CARDS DE LIVROS -->
+        <!-- CONTAINER DE CATEGORIAS -->
+        <nav class="w-full overflow-x-auto py-2">
+            <div class="flex items-center gap-3" id="categoryContainer"></div>
+        </nav>
+    </div>
+
+    <!-- GRID DE LIVROS -->
     <main class="max-w-7xl mx-auto p-6 flex-1 w-full">
-        <div id="booksGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            <!-- Cards injetados via JS -->
-        </div>
+        <div id="booksGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"></div>
     </main>
 
     <!-- MODAL DE DETALHES -->
     <div id="modalDetalhes"
         class="fixed inset-0 bg-black/60 hidden backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div
-            class="bg-white rounded-3xl max-w-lg w-full p-6 relative shadow-2xl animate-in fade-in zoom-in duration-200">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 relative shadow-2xl">
             <button onclick="fecharModal()"
-                class="absolute top-4 right-4 bg-gray-100 hover:bg-gray-200 p-2 rounded-full text-gray-600 transition">
+                class="absolute top-4 right-4 bg-gray-100 hover:bg-gray-200 p-2 rounded-full transition">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
             <div id="modalContent"></div>
         </div>
     </div>
 
-    <!-- RODAPÉ -->
+    <!-- SISTEMA DE NOTIFICAÇÃO TOAST FLUTUANTE -->
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"></div>
+
     <footer class="bg-slate-900 text-gray-400 py-6 text-center text-xs mt-12">
         <p>Sistema Integrado de Biblioteca © 2026 - Acesso Livre ao Leitor</p>
     </footer>
 
-    <!-- SDK Oficial do Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- SCRIPT DO LEITOR ATUALIZADO -->
     <script>
-        // Configuração do Cliente Supabase (Insira suas chaves reais)
-
         let categoriaAtiva = 'Todos';
-        let cacheGlobal = { livros: [], emprestimos: [] };
+        let bibliotecaAtiva = 'Todas';
 
-        // Função assíncrona para buscar dados do Supabase
-        async function obterDadosDoSupabase() {
-            try {
-                const { data: livros, error: errLivros } = await supabaseClient.from('livros').select('*');
-                const { data: emprestimos, error: errEmp } = await supabaseClient.from('emprestimos').select('*');
-
-                if (errLivros || errEmp) {
-                    console.error('Erro ao buscar dados do Supabase:', errLivros || errEmp);
-                    return { livros: [], emprestimos: [] };
-                }
-
-                return {
-                    livros: livros.map(l => ({
-                        id: l.codigo_livro,
-                        bibliotecaNome: l.biblioteca_nome,
-                        titulo: l.titulo,
-                        autor: l.autor,
-                        categoria: l.categoria,
-                        foto: l.foto,
-                        quantidadeTotal: l.quantidade_total,
-                        sinopse: l.sinopse
-                    })),
-                    emprestimos: emprestimos.map(e => ({
-                        id: e.codigo_emp,
-                        livroId: e.livro_id,
-                        livroTitulo: e.livro_titulo,
-                        nome: e.nome_leitor,
-                        cpf: e.cpf_leitor,
-                        endereco: e.endereco_leitor,
-                        data: e.data_emp,
-                        status: e.status
-                    }))
-                };
-            } catch (e) {
-                console.error('Erro de conexão:', e);
-                return { livros: [], emprestimos: [] };
-            }
+        function obterDados() {
+            return JSON.parse(localStorage.getItem('bib_db')) || { livros: [], emprestimos: [] };
         }
 
-        async function renderCategorias() {
-            cacheGlobal = await obterDadosDoSupabase();
-            const cats = ['Todos', ...new Set(cacheGlobal.livros.map(l => l.categoria))];
-            document.getElementById('categoryContainer').innerHTML = cats.map(c => `
-                <button onclick="filtrarCategoria('${c}')" class="px-5 py-2.5 rounded-2xl text-xs font-bold transition whitespace-nowrap shadow-sm ${categoriaAtiva === c ? 'bg-purple-700 text-white shadow-purple-200' : 'bg-[#F1EFEA] text-slate-700 hover:bg-purple-100'}">
-                    ${c}
-                </button>
-            `).join('');
+        function obterMaster() {
+            return JSON.parse(localStorage.getItem('keven_master_db')) || { gerentes: [] };
         }
 
-        function filtrarCategoria(cat) {
-            categoriaAtiva = cat;
+        function popularSeletor() {
+            const master = obterMaster();
+            const sel = document.getElementById('selectBibliotecaLeitor');
+            if (!sel) return;
+
+            let options = '<option value="Todas">Todas as Bibliotecas</option>';
+            master.gerentes.forEach(g => {
+                options += `<option value="${g.biblioteca}">${g.biblioteca}</option>`;
+            });
+            sel.innerHTML = options;
+        }
+
+        function mudarBiblioteca(val) {
+            bibliotecaAtiva = val;
+            categoriaAtiva = 'Todos';
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) searchInput.value = '';
             renderCategorias();
             filtrarLivros();
         }
 
-        async function filtrarLivros() {
-            if (cacheGlobal.livros.length === 0) {
-                cacheGlobal = await obterDadosDoSupabase();
+        function renderCategorias() {
+            const db = obterDados();
+            let lista = db.livros;
+            if (bibliotecaAtiva !== 'Todas') {
+                lista = db.livros.filter(l => (l.bibliotecaNome || 'Biblioteca Central') === bibliotecaAtiva);
             }
 
-            const term = document.getElementById('searchInput').value.toLowerCase();
-            const filtrados = cacheGlobal.livros.filter(l => {
-                const matchCat = categoriaAtiva === 'Todos' || l.categoria === categoriaAtiva;
-                const matchSearch = l.titulo.toLowerCase().includes(term) || l.autor.toLowerCase().includes(term);
-                return matchCat && matchSearch;
+            const cats = ['Todos', ...new Set(lista.map(l => l.categoria || 'Geral'))];
+            const categoryContainer = document.getElementById('categoryContainer');
+
+            if (categoryContainer) {
+                categoryContainer.innerHTML = cats.map(c => `
+                    <button onclick="filtrarCategoria('${c}')" class="px-5 py-2.5 rounded-2xl text-xs font-bold transition whitespace-nowrap shadow-sm ${categoriaAtiva === c ? 'bg-purple-700 text-white' : 'bg-white text-slate-700 hover:bg-purple-100'}">${c}</button>
+                `).join('');
+            }
+        }
+
+        function filtrarCategoria(c) {
+            categoriaAtiva = c;
+            renderCategorias();
+            filtrarLivros();
+        }
+
+        function filtrarLivros() {
+            const db = obterDados();
+            const searchInput = document.getElementById('searchInput');
+            const term = searchInput ? searchInput.value.toLowerCase() : '';
+
+            const filtrados = db.livros.filter(l => {
+                const bibNome = l.bibliotecaNome || 'Biblioteca Central';
+                const matchBib = bibliotecaAtiva === 'Todas' || bibNome === bibliotecaAtiva;
+                const matchCat = categoriaAtiva === 'Todos' || (l.categoria || 'Geral') === categoriaAtiva;
+                const matchSearch = (l.titulo || '').toLowerCase().includes(term) ||
+                    (l.autor || '').toLowerCase().includes(term) ||
+                    (l.categoria || '').toLowerCase().includes(term);
+
+                return matchBib && matchCat && matchSearch;
             });
-            renderLivros(filtrados, cacheGlobal.emprestimos);
+
+            renderLivros(filtrados, db.emprestimos || []);
         }
 
         function renderLivros(lista, emprestimos) {
             const grid = document.getElementById('booksGrid');
+            if (!grid) return;
+
             if (lista.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-16 text-gray-400 font-medium">Nenhum livro encontrado nesta categoria.</div>`;
+                grid.innerHTML = `<div class="col-span-full text-center py-16 text-gray-400 font-medium">Nenhum livro encontrado nesta unidade ou categoria.</div>`;
                 return;
             }
 
             grid.innerHTML = lista.map(l => {
                 const empAtivos = emprestimos.filter(e => e.livroId === l.id && e.status === 'Ativo').length;
                 const disponivel = (l.quantidadeTotal - empAtivos) > 0;
+                const bibNome = l.bibliotecaNome || 'Biblioteca Central';
 
                 return `
-                    <div class="bg-white rounded-3xl shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col overflow-hidden border border-purple-100 group">
-                        <div class="relative h-60 overflow-hidden bg-gray-100">
+                    <div class="bg-white rounded-3xl shadow-md overflow-hidden border border-purple-100 flex flex-col group hover:shadow-2xl transition-all duration-300">
+                        <div class="relative h-60 bg-gray-100 overflow-hidden">
                             <img src="${l.foto}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                            <div class="absolute top-3 left-3">
-                                <span class="px-3 py-1 text-[11px] font-bold rounded-full shadow-md ${disponivel ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}">
-                                    ${disponivel ? 'Disponível' : 'Emprestado'}
-                                </span>
-                            </div>
+                            <span class="absolute top-3 left-3 px-3 py-1 text-[11px] font-bold rounded-full text-white shadow-md ${disponivel ? 'bg-green-500' : 'bg-red-500'}">
+                                ${disponivel ? 'Disponível' : 'Emprestado'}
+                            </span>
                         </div>
                         <div class="p-5 flex-1 flex flex-col justify-between">
                             <div>
-                                <span class="text-[10px] font-extrabold text-purple-600 uppercase tracking-widest">${l.categoria}</span>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-[10px] font-extrabold text-purple-600 uppercase tracking-widest">${l.categoria || 'Geral'}</span>
+                                    <span class="text-[9px] bg-purple-50 text-purple-700 font-bold px-2 py-0.5 rounded-md border border-purple-100">${bibNome}</span>
+                                </div>
                                 <h3 class="font-bold text-slate-900 text-lg line-clamp-1 mt-1">${l.titulo}</h3>
                                 <p class="text-xs text-slate-500 mb-4">${l.autor}</p>
                             </div>
-                            <button onclick="abrirModal('${l.id}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-2xl transition flex items-center justify-center gap-2 shadow-md shadow-blue-200 text-xs">
+                            <button onclick="abrirModal('${l.id}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-2xl text-xs transition flex items-center justify-center gap-2 shadow-md shadow-blue-200">
                                 <i data-lucide="info" class="w-4 h-4"></i> Detalhes
                             </button>
                         </div>
                     </div>
                 `;
             }).join('');
-            lucide.createIcons();
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        async function abrirModal(id) {
-            if (cacheGlobal.livros.length === 0) {
-                cacheGlobal = await obterDadosDoSupabase();
-            }
-
-            const l = cacheGlobal.livros.find(x => x.id === id);
+        function abrirModal(id) {
+            const db = obterDados();
+            const l = db.livros.find(x => x.id === id);
             if (!l) return;
 
-            const empAtivos = cacheGlobal.emprestimos.filter(e => e.livroId === l.id && e.status === 'Ativo').length;
+            const empAtivos = (db.emprestimos || []).filter(e => e.livroId === l.id && e.status === 'Ativo').length;
             const disponivel = (l.quantidadeTotal - empAtivos) > 0;
+            const bibNome = l.bibliotecaNome || 'Biblioteca Central';
 
             document.getElementById('modalContent').innerHTML = `
                 <div class="relative h-56 rounded-2xl overflow-hidden mb-4 shadow-inner">
@@ -218,22 +226,43 @@
                     ${disponivel ? 'Disponível para Empréstimo' : 'Todos os exemplares emprestados'}
                 </span>
                 <h2 class="text-2xl font-bold text-slate-900">${l.titulo}</h2>
-                <p class="text-xs font-semibold text-purple-600 mb-3">Autor: ${l.autor} | Categoria: ${l.categoria}</p>
+                <p class="text-xs font-semibold text-purple-600 mb-1">Autor: ${l.autor} | Categoria: ${l.categoria || 'Geral'}</p>
+                <p class="text-xs font-bold text-slate-700 mb-3">Biblioteca: ${bibNome}</p>
                 <p class="text-slate-600 text-sm mb-4 leading-relaxed">${l.sinopse}</p>
                 <div class="text-[11px] text-slate-400 bg-slate-50 p-3 rounded-xl border">Código ID: ${l.id} | Total no acervo: ${l.quantidadeTotal}</div>
             `;
-            document.getElementById('modalDetalhes').classList.remove('hidden');
-            lucide.createIcons();
+
+            const modal = document.getElementById('modalDetalhes');
+            if (modal) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         function fecharModal() {
-            document.getElementById('modalDetalhes').classList.add('hidden');
+            const modal = document.getElementById('modalDetalhes');
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
         }
 
-        // Inicialização da página
-        renderCategorias().then(() => {
-            filtrarLivros();
+        const modalDetalhes = document.getElementById('modalDetalhes');
+        if (modalDetalhes) {
+            modalDetalhes.addEventListener('click', function (event) {
+                if (event.target === this) fecharModal();
+            });
+        }
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') fecharModal();
         });
+
+        // Inicialização
+        popularSeletor();
+        renderCategorias();
+        filtrarLivros();
     </script>
 </body>
 
