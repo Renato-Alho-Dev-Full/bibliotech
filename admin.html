@@ -3,40 +3,49 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Keven Admin Master - SaaS Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="config.js"></script>
 </head>
 
-<body class="bg-slate-50 font-sans min-h-screen p-6 space-y-6">
+<body class="bg-slate-50 font-sans min-h-screen p-6">
 
-    <section id="loginAdmin" class="max-w-md mx-auto bg-white p-8 rounded-3xl shadow-xl space-y-3">
+    <!-- TELA DE LOGIN -->
+    <section id="loginScreen" class="max-w-md mx-auto mt-20 bg-white p-8 rounded-3xl shadow-xl space-y-4">
         <h1 class="text-2xl font-extrabold text-purple-700 text-center">Admin Master</h1>
-        <input id="adminEmail" type="email" placeholder="E-mail" class="w-full border p-3 rounded-xl">
+        <p class="text-xs text-center text-slate-500 mb-4">Acesso restrito ao proprietário do SaaS.</p>
+        <input id="adminEmail" type="email" placeholder="E-mail do Admin" class="w-full border p-3 rounded-xl">
         <input id="adminSenha" type="password" placeholder="Senha" class="w-full border p-3 rounded-xl">
-        <button onclick="loginAdmin()" class="w-full bg-purple-700 text-white py-3 rounded-xl font-bold">Entrar</button>
+        <button onclick="loginAdmin()"
+            class="w-full bg-purple-700 text-white font-bold py-3 rounded-xl hover:bg-purple-800 transition">Entrar</button>
         <p id="adminErro" class="text-red-600 text-sm text-center hidden"></p>
     </section>
 
+    <!-- PAINEL ADMIN -->
     <section id="adminPainel" class="hidden max-w-6xl mx-auto space-y-6">
         <header class="flex justify-between items-center bg-white p-4 rounded-2xl shadow">
             <h2 class="font-bold text-lg text-purple-700">Painel Master</h2>
-            <button onclick="sb.auth.signOut().then(()=>location.reload())"
-                class="text-red-600 text-sm font-bold">Sair</button>
+            <button onclick="logoutAdmin()"
+                class="text-sm bg-red-100 text-red-700 px-4 py-2 rounded-xl font-semibold hover:bg-red-200 transition">Sair</button>
         </header>
 
-        <form onsubmit="criarGerente(event)" class="bg-white p-6 rounded-3xl shadow space-y-2">
+        <form id="formGerente" class="bg-white p-6 rounded-3xl shadow space-y-3">
             <h3 class="font-bold text-purple-700">➕ Novo Gerente</h3>
             <input id="cadBibNome" required placeholder="Nome da biblioteca" class="w-full border p-2 rounded-xl">
             <input id="cadGerenteNome" required placeholder="Nome do gerente" class="w-full border p-2 rounded-xl">
-            <input id="cadEmail" required type="email" placeholder="E-mail" class="w-full border p-2 rounded-xl">
+            <input id="cadEmail" required type="email" placeholder="E-mail de login"
+                class="w-full border p-2 rounded-xl">
             <input id="cadUserLogin" required placeholder="Usuário (login)" class="w-full border p-2 rounded-xl">
-            <input id="cadUserSenha" required type="password" placeholder="Senha" class="w-full border p-2 rounded-xl">
-            <button class="bg-purple-700 text-white px-6 py-2 rounded-xl font-bold">Cadastrar</button>
+            <input id="cadUserSenha" required type="password" placeholder="Senha de acesso"
+                class="w-full border p-2 rounded-xl">
+            <button type="submit"
+                class="bg-purple-700 text-white px-6 py-2 rounded-xl font-bold hover:bg-purple-800">Cadastrar e Criar
+                Acesso</button>
         </form>
 
-        <form onsubmit="realizarVendaPDV(event)" class="bg-white p-6 rounded-3xl shadow space-y-2">
-            <h3 class="font-bold text-green-700">💳 Venda PDV</h3>
+        <form id="formVenda" class="bg-white p-6 rounded-3xl shadow space-y-3">
+            <h3 class="font-bold text-green-700">💳 Venda PDV (Renovação)</h3>
             <select id="pdvGerenteId" required class="w-full border p-2 rounded-xl"></select>
             <select id="pdvMeses" required class="w-full border p-2 rounded-xl">
                 <option value="1">1 mês — R$ 97</option>
@@ -48,97 +57,168 @@
                 <option value="Pago">Pago</option>
                 <option value="Pendente">Pendente</option>
             </select>
-            <button class="bg-green-700 text-white px-6 py-2 rounded-xl font-bold">Registrar venda</button>
+            <button type="submit"
+                class="bg-green-700 text-white px-6 py-2 rounded-xl font-bold hover:bg-green-800">Registrar
+                Venda</button>
         </form>
 
         <div class="bg-white p-6 rounded-3xl shadow">
-            <h3 class="font-bold mb-3">👥 Gerentes</h3>
+            <h3 class="font-bold mb-3 text-slate-700">👥 Gerentes Cadastrados</h3>
             <div id="listaGerentes" class="text-sm space-y-2"></div>
         </div>
     </section>
 
     <script>
-        async function callAdmin(action, payload = {}) {
-            const { data: { session } } = await sb.auth.getSession();
-            if (!session) throw new Error('Não autenticado');
-            const res = await fetch(`${SUPABASE_URL}/functions/v1/admin-ops`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${session.access_token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ action, payload })
-            });
-            const json = await res.json();
-            if (!res.ok) throw new Error(json.error || 'erro');
-            return json;
-        }
-
+        // ---------- AUTENTICAÇÃO DO ADMIN ----------
         async function loginAdmin() {
             const email = document.getElementById('adminEmail').value;
             const senha = document.getElementById('adminSenha').value;
             const err = document.getElementById('adminErro');
             err.classList.add('hidden');
 
+            // Faz o login real no Supabase
             const { error } = await sb.auth.signInWithPassword({ email, password: senha });
-            if (error) { err.textContent = error.message; err.classList.remove('hidden'); return; }
 
+            if (error) {
+                err.textContent = 'Credenciais inválidas.';
+                err.classList.remove('hidden');
+                return;
+            }
+
+            // Verifica se é o admin (você pode checar o email fixo ou uma role no banco)
             const { data: { user } } = await sb.auth.getUser();
-            if (user.app_metadata?.role !== 'admin') {
-                err.textContent = 'Usuário não é admin.';
+            if (user.email !== 'san.eetepa@gmail.com') { // <-- COLOQUE SEU EMAIL AQUI
+                err.textContent = 'Acesso negado: você não é o administrador.';
                 err.classList.remove('hidden');
                 await sb.auth.signOut();
                 return;
             }
 
-            document.getElementById('loginAdmin').classList.add('hidden');
+            document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('adminPainel').classList.remove('hidden');
             carregarPainel();
         }
 
+        async function logoutAdmin() {
+            await sb.auth.signOut();
+            location.reload();
+        }
+
+        // ---------- LÓGICA DO PAINEL ----------
+        window.addEventListener('load', async () => {
+            // Se já estiver logado, pula a tela de login
+            const { data: { session } } = await sb.auth.getSession();
+            if (session && session.user.email === 'san.eetepa@gmail.com') {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('adminPainel').classList.remove('hidden');
+                carregarPainel();
+            }
+
+            document.getElementById('formGerente').addEventListener('submit', criarGerente);
+            document.getElementById('formVenda').addEventListener('submit', realizarVendaPDV);
+        });
+
         async function carregarPainel() {
-            const { gerentes } = await callAdmin('listar');
-            document.getElementById('pdvGerenteId').innerHTML =
-                gerentes.map(g => `<option value="${g.codigo_mgr}">${g.biblioteca} — ${g.gerente}</option>`).join('');
-            document.getElementById('listaGerentes').innerHTML = gerentes.map(g => `
-        <div class="flex justify-between border-b py-2">
-          <div><b>${g.biblioteca}</b> — ${g.gerente} (${g.email})
-            <span class="text-xs text-slate-500">Validade: ${g.validade} | ${g.pagamento}</span></div>
-          <button onclick="excluirGerente('${g.codigo_mgr}')" class="text-red-600 text-xs font-bold">Excluir</button>
-        </div>`).join('');
+            const { data: gerentes, error } = await sb.from('gerentes').select('*').order('id');
+            if (error) return console.error('Erro ao buscar gerentes:', error);
+
+            document.getElementById('pdvGerenteId').innerHTML = gerentes.map(g =>
+                `<option value="${g.codigo_mgr}">${g.biblioteca} — ${g.gerente}</option>`
+            ).join('');
+
+            document.getElementById('listaGerentes').innerHTML = gerentes.length ? gerentes.map(g => `
+        <div class="flex justify-between border-b py-2 items-center">
+          <div>
+            <b>${g.biblioteca}</b> — ${g.gerente} (${g.email})
+            <span class="text-xs text-slate-500 block">Validade: ${g.validade} | Status: ${g.pagamento}</span>
+          </div>
+          <button onclick="excluirGerente('${g.codigo_mgr}')" class="text-red-600 text-xs font-bold bg-red-50 px-3 py-1 rounded-lg hover:bg-red-100">Excluir</button>
+        </div>
+      `).join('') : '<p class="text-slate-400">Nenhum gerente cadastrado.</p>';
         }
 
         async function criarGerente(ev) {
             ev.preventDefault();
-            try {
-                await callAdmin('criar_gerente', {
-                    biblioteca: document.getElementById('cadBibNome').value,
-                    gerente: document.getElementById('cadGerenteNome').value,
-                    email: document.getElementById('cadEmail').value,
-                    usuario: document.getElementById('cadUserLogin').value,
-                    senha: document.getElementById('cadUserSenha').value
-                });
-                ev.target.reset();
-                carregarPainel();
-            } catch (e) { alert(e.message); }
+            const btn = ev.target.querySelector('button');
+            btn.textContent = 'Salvando...';
+            btn.disabled = true;
+
+            const email = document.getElementById('cadEmail').value;
+            const senha = document.getElementById('cadUserSenha').value;
+            const novoId = 'MGR-' + Math.floor(1000 + Math.random() * 9000);
+
+            // 1. Cria o usuário no Supabase Auth (para que ele possa logar no gerente.html)
+            const { data: authData, error: authError } = await sb.auth.signUp({
+                email: email,
+                password: senha
+            });
+
+            if (authError) {
+                alert('Erro ao criar login do gerente: ' + authError.message);
+                btn.textContent = 'Cadastrar e Criar Acesso';
+                btn.disabled = false;
+                return;
+            }
+
+            // 2. Salva os dados na tabela gerentes, vinculando o ID de autenticação
+            const { error: dbError } = await sb.from('gerentes').insert([{
+                codigo_mgr: novoId,
+                biblioteca: document.getElementById('cadBibNome').value,
+                gerente: document.getElementById('cadGerenteNome').value,
+                email: email,
+                usuario: document.getElementById('cadUserLogin').value,
+                senha_hash: 'auth_managed', // A senha real está segura no Auth
+                data_entrada: new Date().toLocaleDateString('pt-BR'),
+                pagamento: 'Pendente',
+                validade: 'Pendente',
+                auth_user_id: authData.user.id // Vincula o usuário criado
+            }]);
+
+            btn.textContent = 'Cadastrar e Criar Acesso';
+            btn.disabled = false;
+
+            if (dbError) {
+                alert('Erro ao salvar dados do gerente: ' + dbError.message);
+                return;
+            }
+
+            ev.target.reset();
+            carregarPainel();
         }
 
         async function realizarVendaPDV(ev) {
             ev.preventDefault();
-            try {
-                await callAdmin('venda', {
-                    gerenteId: document.getElementById('pdvGerenteId').value,
-                    meses: Number(document.getElementById('pdvMeses').value),
-                    statusPgto: document.getElementById('pdvStatusPgto').value
-                });
-                carregarPainel();
-            } catch (e) { alert(e.message); }
+            const gerenteId = document.getElementById('pdvGerenteId').value;
+            const meses = Number(document.getElementById('pdvMeses').value);
+            const statusPgto = document.getElementById('pdvStatusPgto').value;
+            if (!gerenteId) return alert('Cadastre um gerente primeiro.');
+
+            const precos = { 1: 97, 4: 350, 6: 500, 12: 900 };
+            const dataVal = new Date();
+            dataVal.setMonth(dataVal.getMonth() + meses);
+
+            await sb.from('gerentes').update({
+                validade: dataVal.toLocaleDateString('pt-BR'),
+                pagamento: statusPgto
+            }).eq('codigo_mgr', gerenteId);
+
+            const { data: gerente } = await sb.from('gerentes').select('biblioteca').eq('codigo_mgr', gerenteId).single();
+
+            await sb.from('vendas').insert([{
+                codigo_venda: 'VD-' + Math.floor(1000 + Math.random() * 9000),
+                biblioteca: gerente.biblioteca,
+                valor: precos[meses] || 100,
+                data_venda: new Date().toLocaleDateString('pt-BR')
+            }]);
+
+            alert('Venda registrada com sucesso!');
+            carregarPainel();
         }
 
         async function excluirGerente(id) {
-            if (!confirm('Revogar acesso e excluir gerente?')) return;
-            try { await callAdmin('excluir_gerente', { gerenteId: id }); carregarPainel(); }
-            catch (e) { alert(e.message); }
+            if (!confirm('Excluir gerente? O acesso dele será revogado.')) return;
+            await sb.from('gerentes').delete().eq('codigo_mgr', id);
+            carregarPainel();
         }
     </script>
 </body>
