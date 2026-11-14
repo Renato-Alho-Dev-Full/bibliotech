@@ -1,446 +1,310 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full">
+<html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel do Gerente - Biblioteca</title>
+    <title>Workspace do Gerente - Bibliotech</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-        }
-    </script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        .light-bg {
-            background-color: #F8F7F4;
-            background-image: radial-gradient(#E2E8F0 1px, transparent 1px);
-            background-size: 24px 24px;
-        }
-        .dark .light-bg {
-            background-color: #020617; 
-            background-image: radial-gradient(#1e293b 1px, transparent 1px);
-        }
-    </style>
+    <script src="https://unpkg.com/lucide@0.436.0/dist/umd/lucide.min.js"></script>
+    <script src="config.js"></script>
 </head>
-<body class="h-full light-bg font-sans text-slate-800 dark:text-gray-100 transition-colors duration-300">
 
-    <!-- LOGIN DO GERENTE -->
-    <div id="loginGerente" class="min-h-screen flex items-center justify-center p-4">
-        <div class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-purple-200 dark:border-purple-500/30 p-8 rounded-3xl shadow-2xl max-w-md w-full transition-colors duration-300">
-            <div class="text-center mb-6">
-                <div class="bg-gradient-to-tr from-green-400 to-purple-600 text-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                    <i data-lucide="user-cog" class="w-8 h-8"></i>
-                </div>
-                <h1 class="text-2xl font-extrabold text-slate-900 dark:text-white">Acesso Restrito</h1>
-                <p class="text-xs text-purple-600 dark:text-purple-400 font-semibold mt-1">Painel do Gerente da Biblioteca</p>
-            </div>
-            
-            <form onsubmit="fazerLoginGerente(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Usuário (Login)</label>
-                    <input type="text" id="userMgr" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Senha</label>
-                    <input type="password" id="passMgr" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
-                </div>
-                <button type="submit" class="w-full bg-gradient-to-r from-green-500 to-purple-600 hover:opacity-95 text-white font-bold py-3 rounded-xl shadow-md transition transform active:scale-95">
-                    Entrar no Workspace
-                </button>
-            </form>
-            
-            <div id="erroLogin" class="hidden mt-4 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 text-xs text-center rounded-xl font-semibold"></div>
-        </div>
-    </div>
+<body class="bg-slate-50 font-sans min-h-screen">
 
-    <!-- PAINEL DO GERENTE -->
-    <div id="panelGerente" class="hidden min-h-screen flex flex-col">
-        <header class="bg-white/90 dark:bg-slate-900/90 backdrop-blur border-b border-purple-100 dark:border-purple-900/50 sticky top-0 z-50 px-6 py-4 flex justify-between items-center shadow-sm transition-colors duration-300">
-            <div class="flex items-center gap-3">
-                <div class="bg-gradient-to-tr from-green-500 to-emerald-600 p-2.5 rounded-xl shadow">
-                    <i data-lucide="layout-dashboard" class="w-5 h-5 text-white"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-base text-slate-900 dark:text-white">Workspace do Gerente</h1>
-                    <p id="nomeBibliotecaCabecalho" class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Controle Operacional</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-3">
-                <!-- BOTÃO DARK MODE -->
-                <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-sky-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
-                    <i data-lucide="moon" id="themeIcon" class="w-4 h-4"></i>
-                </button>
+    <!-- TELA DE LOGIN -->
+    <section id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
+        <form onsubmit="loginGerente(event)" class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md space-y-4">
+            <h1 class="text-2xl font-extrabold text-purple-700 text-center">Bibliotech • Gerente</h1>
+            <input id="loginEmail" type="email" required placeholder="E-mail" class="w-full border p-3 rounded-xl">
+            <input id="loginSenha" type="password" required placeholder="Senha" class="w-full border p-3 rounded-xl">
+            <button
+                class="w-full bg-purple-700 text-white font-bold py-3 rounded-xl hover:bg-purple-800">Entrar</button>
+            <p id="loginErro" class="text-red-600 text-sm text-center hidden"></p>
+        </form>
+    </section>
 
-                <button onclick="copiarLinkLeitor()" class="bg-purple-100 dark:bg-purple-500/20 hover:bg-purple-200 dark:hover:bg-purple-500/30 text-purple-700 dark:text-purple-300 text-xs px-4 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-sm transition border border-purple-200 dark:border-purple-500/30">
-                    <i data-lucide="link" class="w-4 h-4"></i> Link do Leitor
-                </button>
-                <button onclick="logoutGerente()" class="bg-pink-50 dark:bg-pink-500/20 hover:bg-pink-100 dark:hover:bg-pink-500/30 text-pink-600 dark:text-pink-300 border border-pink-200 dark:border-pink-500/30 px-4 py-2.5 rounded-xl text-xs font-bold transition">
-                    Sair
-                </button>
+    <!-- PAINEL -->
+    <section id="painel" class="hidden p-6 max-w-6xl mx-auto space-y-8">
+        <header class="flex justify-between items-center bg-white p-4 rounded-2xl shadow">
+            <div>
+                <h2 id="bibNome" class="font-bold text-lg text-slate-800"></h2>
+                <p id="bibGerente" class="text-xs text-slate-500"></p>
             </div>
+            <button onclick="logoutGerente()"
+                class="text-sm bg-red-100 text-red-700 px-4 py-2 rounded-xl font-semibold">Sair</button>
         </header>
 
-        <main class="max-w-7xl mx-auto p-6 space-y-8 flex-1 w-full">
-            <!-- CARDS DE DASHBOARD -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="bg-white dark:bg-slate-900 border border-purple-100 dark:border-purple-500/20 p-6 rounded-3xl shadow-md relative overflow-hidden transition-colors">
-                    <p class="text-purple-600 dark:text-purple-400 text-xs font-bold uppercase tracking-wider">Total de Livros</p>
-                    <h3 id="statLivros" class="text-4xl font-extrabold text-slate-900 dark:text-white mt-2">0</h3>
-                </div>
-                <div class="bg-white dark:bg-slate-900 border border-pink-100 dark:border-pink-500/20 p-6 rounded-3xl shadow-md relative overflow-hidden transition-colors">
-                    <p class="text-pink-600 dark:text-pink-400 text-xs font-bold uppercase tracking-wider">Empréstimos Ativos</p>
-                    <h3 id="statEmprestimos" class="text-4xl font-extrabold text-pink-600 dark:text-pink-400 mt-2">0</h3>
-                </div>
-                <div class="bg-white dark:bg-slate-900 border border-green-100 dark:border-green-500/20 p-6 rounded-3xl shadow-md relative overflow-hidden transition-colors">
-                    <p class="text-green-600 dark:text-green-400 text-xs font-bold uppercase tracking-wider">Exemplares Disponíveis</p>
-                    <h3 id="statDisponiveis" class="text-4xl font-extrabold text-green-600 dark:text-green-400 mt-2">0</h3>
-                </div>
-                <div class="bg-white dark:bg-slate-900 border border-sky-100 dark:border-sky-500/20 p-6 rounded-3xl shadow-md flex flex-col justify-between transition-colors">
-                    <p class="text-sky-600 dark:text-sky-400 text-xs font-bold uppercase tracking-wider">Circulação</p>
-                    <div class="space-y-2 mt-2">
-                        <div class="flex justify-between text-xs font-semibold"><span class="text-green-600 dark:text-green-400">Disp.</span><span class="text-pink-600 dark:text-pink-400">Emp.</span></div>
-                        <div class="w-full bg-slate-100 dark:bg-slate-800 h-4 rounded-full overflow-hidden flex border border-slate-200 dark:border-slate-700">
-                            <div id="barDisp" class="bg-green-500 h-full transition-all" style="width: 50%"></div>
-                            <div id="barEmp" class="bg-pink-500 h-full transition-all" style="width: 50%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <!-- CADASTRO LIVRO -->
+        <form id="formLivro" onsubmit="cadastrarLivro(event)" class="bg-white p-6 rounded-3xl shadow space-y-3">
+            <h3 class="font-bold text-purple-700">➕ Cadastrar Livro</h3>
+            <input id="livroTitulo" required placeholder="Título" class="w-full border p-2 rounded-xl">
+            <input id="livroAutor" required placeholder="Autor" class="w-full border p-2 rounded-xl">
+            <input id="livroCategoria" required placeholder="Categoria" class="w-full border p-2 rounded-xl">
+            <input id="livroQtd" type="number" min="1" required placeholder="Quantidade"
+                class="w-full border p-2 rounded-xl">
+            <textarea id="livroSinopse" required placeholder="Sinopse" class="w-full border p-2 rounded-xl"
+                rows="3"></textarea>
+            <input id="livroFotoFile" type="file" accept="image/*" class="w-full text-sm">
+            <button
+                class="bg-purple-700 text-white px-6 py-2 rounded-xl font-bold hover:bg-purple-800">Cadastrar</button>
+        </form>
 
-            <!-- FORMULÁRIOS DE CADASTRO -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Cadastro de Livros -->
-                <div class="bg-white dark:bg-slate-900 border border-purple-100 dark:border-purple-500/20 p-6 rounded-3xl shadow-md transition-colors">
-                    <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2"><i data-lucide="plus-circle" class="text-purple-600 dark:text-purple-400"></i> Cadastrar Livro (Anexo de Capa)</h2>
-                    <form id="formLivro" onsubmit="cadastrarLivro(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Título do Livro</label>
-                            <input type="text" id="livroTitulo" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-3 rounded-xl text-slate-900 dark:text-white">
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Autor</label>
-                                <input type="text" id="livroAutor" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-3 rounded-xl text-slate-900 dark:text-white">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Categoria</label>
-                                <input type="text" id="livroCategoria" placeholder="Ex: Fantasia" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-3 rounded-xl text-slate-900 dark:text-white">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Capa do Livro (Arquivo)</label>
-                                <input type="file" id="livroFotoFile" accept="image/*" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-2 rounded-xl text-slate-900 dark:text-white text-xs file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-100 dark:file:bg-purple-500/20 file:text-purple-700 dark:file:text-purple-300 cursor-pointer">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Quantidade</label>
-                                <input type="number" id="livroQtd" min="1" value="1" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-3 rounded-xl text-slate-900 dark:text-white">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Sinopse</label>
-                            <textarea id="livroSinopse" rows="2" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-3 rounded-xl text-slate-900 dark:text-white"></textarea>
-                        </div>
-                        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition shadow-md">Cadastrar Livro no Acervo</button>
-                    </form>
-                </div>
+        <!-- NOVO EMPRÉSTIMO -->
+        <form id="empFormEmprestimo" onsubmit="registrarEmprestimo(event)"
+            class="bg-white p-6 rounded-3xl shadow space-y-3">
+            <h3 class="font-bold text-blue-700">📖 Novo Empréstimo</h3>
+            <select id="empLivroId" required class="w-full border p-2 rounded-xl">
+                <option value="">Selecione o livro...</option>
+            </select>
+            <input id="empNome" required placeholder="Nome do leitor" class="w-full border p-2 rounded-xl">
+            <input id="empCpf" required placeholder="CPF" class="w-full border p-2 rounded-xl">
+            <input id="empEndereco" required placeholder="Endereço" class="w-full border p-2 rounded-xl">
+            <button class="bg-blue-700 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-800">Registrar</button>
+        </form>
 
-                <!-- Registro de Empréstimo -->
-                <div class="bg-white dark:bg-slate-900 border border-pink-100 dark:border-pink-500/20 p-6 rounded-3xl shadow-md transition-colors">
-                    <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2"><i data-lucide="book-up" class="text-pink-600 dark:text-pink-400"></i> Registrar Empréstimo</h2>
-                    <form id="formEmprestimo" onsubmit="registrarEmprestimo(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Selecione o Livro</label>
-                            <select id="empLivroId" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-3 rounded-xl text-slate-900 dark:text-white"></select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Nome Completo do Leitor</label>
-                            <input type="text" id="empNome" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-3 rounded-xl text-slate-900 dark:text-white">
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">CPF do Leitor</label>
-                                <input type="text" id="empCpf" placeholder="000.000.000-00" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-3 rounded-xl text-slate-900 dark:text-white">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Endereço</label>
-                                <input type="text" id="empEndereco" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-3 rounded-xl text-slate-900 dark:text-white">
-                            </div>
-                        </div>
-                        <button type="submit" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-xl transition shadow-md mt-6">Confirmar Empréstimo</button>
-                    </form>
-                </div>
-            </div>
+        <!-- LISTAS -->
+        <div class="bg-white p-6 rounded-3xl shadow">
+            <h3 class="font-bold text-slate-700 mb-3">📚 Meus Livros</h3>
+            <div id="listaMeusLivros" class="space-y-2 text-sm"></div>
+        </div>
 
-            <!-- TABELAS DE GERENCIAMENTO -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-12">
-                <!-- Gerenciar / Excluir Livros -->
-                <div class="bg-white dark:bg-slate-900 border border-purple-100 dark:border-purple-500/20 p-6 rounded-3xl shadow-md transition-colors">
-                    <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2"><i data-lucide="books" class="text-purple-600 dark:text-purple-400"></i> Acervo de Livros</h2>
-                    <div class="overflow-x-auto max-h-80 overflow-y-auto">
-                        <table class="w-full text-left text-sm text-slate-700 dark:text-slate-300">
-                            <thead class="bg-slate-100 dark:bg-slate-950 text-slate-600 dark:text-slate-400 text-xs uppercase sticky top-0">
-                                <tr>
-                                    <th class="p-3">ID / Título</th>
-                                    <th class="p-3">Qtd</th>
-                                    <th class="p-3 text-right">Ação</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabelaLivrosGerente" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Empréstimos Ativos & Baixa -->
-                <div class="bg-white dark:bg-slate-900 border border-green-100 dark:border-green-500/20 p-6 rounded-3xl shadow-md transition-colors">
-                    <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2"><i data-lucide="list-checks" class="text-green-600 dark:text-green-400"></i> Empréstimos & Devoluções</h2>
-                    <div class="overflow-x-auto max-h-80 overflow-y-auto">
-                        <table class="w-full text-left text-sm text-slate-700 dark:text-slate-300">
-                            <thead class="bg-slate-100 dark:bg-slate-950 text-slate-600 dark:text-slate-400 text-xs uppercase sticky top-0">
-                                <tr>
-                                    <th class="p-3">Leitor / Livro</th>
-                                    <th class="p-3">Data</th>
-                                    <th class="p-3 text-right">Baixa (Devolver)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabelaEmprestimosGerente" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
+        <div class="bg-white p-6 rounded-3xl shadow">
+            <h3 class="font-bold text-slate-700 mb-3">📄 Empréstimos Ativos</h3>
+            <div id="listaEmprestimos" class="space-y-2 text-sm"></div>
+        </div>
+    </section>
 
     <script>
-        // CONFIGURAÇÃO DO DARK MODE
-        function applyTheme() {
-            if (localStorage.getItem('keven_theme') === 'dark') {
-                document.documentElement.classList.add('dark');
-                document.getElementById('themeIcon').setAttribute('data-lucide', 'sun');
-            } else {
-                document.documentElement.classList.remove('dark');
-                document.getElementById('themeIcon').setAttribute('data-lucide', 'moon');
-            }
-            lucide.createIcons();
-        }
+        let gerenteAtual = null;
 
-        function toggleDarkMode() {
-            if (document.documentElement.classList.contains('dark')) {
-                document.documentElement.classList.remove('dark');
-                localStorage.setItem('keven_theme', 'light');
-            } else {
-                document.documentElement.classList.add('dark');
-                localStorage.setItem('keven_theme', 'dark');
-            }
-            applyTheme();
-        }
+        const mapLivro = (l) => ({
+            id: l.codigo_livro,
+            bibliotecaNome: l.biblioteca_nome,
+            titulo: l.titulo,
+            autor: l.autor,
+            categoria: l.categoria,
+            foto: l.foto,
+            quantidadeTotal: Number(l.quantidade_total),
+            sinopse: l.sinopse
+        });
 
-        applyTheme();
+        const mapEmprestimo = (e) => ({
+            id: e.codigo_emp,
+            livroId: e.livro_id,
+            livroTitulo: e.livro_titulo,
+            nome: e.nome_leitor,
+            cpf: e.cpf_leitor,
+            endereco: e.endereco_leitor,
+            data: e.data_emp,
+            status: e.status
+        });
 
-        let db = JSON.parse(localStorage.getItem('bib_db')) || { livros: [], emprestimos: [] };
-        if(!db.emprestimos) db.emprestimos = [];
+        // ---------- AUTENTICAÇÃO ----------
+        async function loginGerente(ev) {
+            ev.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const senha = document.getElementById('loginSenha').value;
+            const erroEl = document.getElementById('loginErro');
+            erroEl.classList.add('hidden');
 
-        function fazerLoginGerente(e) {
-            e.preventDefault();
-            const u = document.getElementById('userMgr').value.trim();
-            const p = document.getElementById('passMgr').value.trim();
-            const erroDiv = document.getElementById('erroLogin');
-            
-            const masterDb = JSON.parse(localStorage.getItem('keven_master_db')) || { gerentes: [] };
-            const gerenteEncontrado = masterDb.gerentes.find(g => g.usuario === u && g.senha === p);
-
-            if(gerenteEncontrado) {
-                if(gerenteEncontrado.pagamento !== 'Pago') {
-                    erroDiv.innerHTML = `<i data-lucide="alert-circle" class="inline w-4 h-4 mr-1"></i> A licença desta biblioteca está pendente ou vencida.`;
-                    erroDiv.classList.remove('hidden');
-                    lucide.createIcons();
-                    return; 
-                }
-
-                localStorage.setItem('gerente_logado', 'true');
-                localStorage.setItem('gerente_atual', JSON.stringify(gerenteEncontrado));
-                mostrarPainelGerente();
-                erroDiv.classList.add('hidden');
-                
-            } else if (u === 'gerente' && p === '123') {
-                localStorage.setItem('gerente_logado', 'true');
-                localStorage.setItem('gerente_atual', JSON.stringify({ biblioteca: "Biblioteca de Teste (Local)" }));
-                mostrarPainelGerente();
-                erroDiv.classList.add('hidden');
-            } else {
-                erroDiv.innerHTML = `<i data-lucide="x-circle" class="inline w-4 h-4 mr-1"></i> Usuário ou senha incorretos!`;
-                erroDiv.classList.remove('hidden');
-                lucide.createIcons();
-            }
-        }
-
-        function mostrarPainelGerente() {
-            document.getElementById('loginGerente').classList.add('hidden');
-            document.getElementById('panelGerente').classList.remove('hidden');
-            
-            const dadosGerente = JSON.parse(localStorage.getItem('gerente_atual'));
-            if(dadosGerente && dadosGerente.biblioteca) {
-                document.getElementById('nomeBibliotecaCabecalho').innerText = "Licenciado para: " + dadosGerente.biblioteca;
-            }
-
-            atualizarInterfaceGerente();
-            lucide.createIcons();
-        }
-
-        function logoutGerente() {
-            localStorage.removeItem('gerente_logado');
-            localStorage.removeItem('gerente_atual');
-            location.reload();
-        }
-
-        function atualizarInterfaceGerente() {
-            localStorage.setItem('bib_db', JSON.stringify(db));
-
-            const totalLivros = db.livros.length;
-            const empAtivos = db.emprestimos.filter(e => e.status === 'Ativo').length;
-            const totalExemplares = db.livros.reduce((acc, l) => acc + Number(l.quantidadeTotal), 0);
-            const disponiveis = totalExemplares - empAtivos;
-
-            document.getElementById('statLivros').innerText = totalLivros;
-            document.getElementById('statEmprestimos').innerText = empAtivos;
-            document.getElementById('statDisponiveis').innerText = Math.max(0, disponiveis);
-
-            const maxVal = totalExemplares || 1;
-            const pctDisp = Math.round((Math.max(0, disponiveis) / maxVal) * 100);
-            const pctEmp = 100 - pctDisp;
-            document.getElementById('barDisp').style.width = pctDisp + '%';
-            document.getElementById('barEmp').style.width = pctEmp + '%';
-
-            const select = document.getElementById('empLivroId');
-            select.innerHTML = '<option value="">Selecione o livro...</option>' + 
-                db.livros.map(l => `<option value="${l.id}">${l.titulo} (Disp: ${l.quantidadeTotal - db.emprestimos.filter(e => e.livroId === l.id && e.status === 'Ativo').length})</option>`).join('');
-
-            const tabLivros = document.getElementById('tabelaLivrosGerente');
-            if(db.livros.length === 0) {
-                tabLivros.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-400">Nenhum livro cadastrado.</td></tr>`;
-            } else {
-                tabLivros.innerHTML = db.livros.map(l => `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition">
-                        <td class="p-3">
-                            <b class="text-slate-900 dark:text-white">${l.titulo}</b><br>
-                            <span class="text-xs text-purple-600 dark:text-purple-400">ID: ${l.id}</span>
-                        </td>
-                        <td class="p-3 font-bold">${l.quantidadeTotal}</td>
-                        <td class="p-3 text-right">
-                            <button onclick="excluirLivro('${l.id}')" class="p-2 bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-500/40 rounded-lg transition text-xs font-bold flex items-center gap-1 ml-auto">
-                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Excluir
-                            </button>
-                        </td>
-                    </tr>
-                `).join('');
-            }
-
-            const ativos = db.emprestimos.filter(e => e.status === 'Ativo');
-            const tabEmp = document.getElementById('tabelaEmprestimosGerente');
-            if(ativos.length === 0) {
-                tabEmp.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-400">Nenhum empréstimo ativo.</td></tr>`;
-            } else {
-                tabEmp.innerHTML = ativos.map(e => `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition">
-                        <td class="p-3">
-                            <b class="text-slate-900 dark:text-white">${e.nome}</b><br>
-                            <span class="text-xs text-pink-600 dark:text-pink-400">${e.livroTitulo}</span>
-                        </td>
-                        <td class="p-3 text-xs text-slate-500">${e.data}</td>
-                        <td class="p-3 text-right">
-                            <button onclick="darBaixaEmprestimo('${e.id}')" class="px-3 py-1.5 bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-500/40 rounded-lg transition text-xs font-bold flex items-center gap-1 ml-auto">
-                                <i data-lucide="check" class="w-3.5 h-3.5"></i> Devolver
-                            </button>
-                        </td>
-                    </tr>
-                `).join('');
-            }
-            lucide.createIcons();
-        }
-
-        function cadastrarLivro(e) {
-            e.preventDefault();
-            const fileInput = document.getElementById('livroFotoFile');
-            const file = fileInput.files[0];
-
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const base64Image = event.target.result; 
-
-                    const novo = {
-                        id: 'LIV-' + Math.floor(1000 + Math.random() * 9000),
-                        titulo: document.getElementById('livroTitulo').value,
-                        autor: document.getElementById('livroAutor').value,
-                        categoria: document.getElementById('livroCategoria').value,
-                        foto: base64Image, 
-                        quantidadeTotal: Number(document.getElementById('livroQtd').value),
-                        sinopse: document.getElementById('livroSinopse').value
-                    };
-
-                    db.livros.push(novo);
-                    document.getElementById('formLivro').reset();
-                    atualizarInterfaceGerente();
-                    alert(`Livro cadastrado com sucesso! ID: ${novo.id}`);
-                };
-                reader.readAsDataURL(file); 
-            }
-        }
-
-        function excluirLivro(id) {
-            if(confirm('Tem certeza que deseja excluir este livro?')) {
-                db.livros = db.livros.filter(l => l.id !== id);
-                atualizarInterfaceGerente();
-            }
-        }
-
-        function registrarEmprestimo(e) {
-            e.preventDefault();
-            const idLivro = document.getElementById('empLivroId').value;
-            const livro = db.livros.find(l => l.id === idLivro);
-            
-            const ativosLivro = db.emprestimos.filter(emp => emp.livroId === idLivro && emp.status === 'Ativo').length;
-            if(ativosLivro >= livro.quantidadeTotal) {
-                alert('Todos os exemplares deste livro já estão emprestados!');
+            const { data: authData, error: authErr } = await sb.auth.signInWithPassword({ email, password: senha });
+            if (authErr) {
+                erroEl.textContent = 'Credenciais inválidas.';
+                erroEl.classList.remove('hidden');
                 return;
             }
 
-            db.emprestimos.push({
-                id: 'EMP-' + Math.floor(1000 + Math.random() * 9000),
-                livroId: idLivro,
-                livroTitulo: livro.titulo,
-                nome: document.getElementById('empNome').value,
-                cpf: document.getElementById('empCpf').value,
-                endereco: document.getElementById('empEndereco').value,
-                data: new Date().toLocaleDateString('pt-BR'),
-                status: 'Ativo'
-            });
+            // Busca perfil do gerente vinculado
+            const { data: gRows, error: gErr } = await sb
+                .from('gerentes')
+                .select('*')
+                .eq('email', email)
+                .limit(1);
 
-            document.getElementById('formEmprestimo').reset();
-            atualizarInterfaceGerente();
-            alert('Empréstimo registrado com sucesso!');
+            if (gErr || !gRows || gRows.length === 0) {
+                erroEl.textContent = 'Gerente não encontrado.';
+                erroEl.classList.remove('hidden');
+                await sb.auth.signOut();
+                return;
+            }
+
+            const g = gRows[0];
+
+            // Vincula auth_user_id se ainda não estiver vinculado
+            if (!g.auth_user_id) {
+                await sb.from('gerentes').update({ auth_user_id: authData.user.id }).eq('codigo_mgr', g.codigo_mgr);
+            }
+
+            gerenteAtual = {
+                id: g.codigo_mgr,
+                biblioteca: g.biblioteca,
+                gerente: g.gerente,
+                email: g.email
+            };
+
+            mostrarPainel();
         }
 
-        function darBaixaEmprestimo(empId) {
-            const emp = db.emprestimos.find(e => e.id === empId);
-            if(emp) {
-                emp.status = 'Devolvido';
-                atualizarInterfaceGerente();
-                alert('Devolução confirmada! Livro retornou à estante.');
+        async function logoutGerente() {
+            await sb.auth.signOut();
+            gerenteAtual = null;
+            document.getElementById('painel').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+        }
+
+        function mostrarPainel() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('painel').classList.remove('hidden');
+            document.getElementById('bibNome').textContent = gerenteAtual.biblioteca;
+            document.getElementById('bibGerente').textContent = `Gerente: ${gerenteAtual.gerente}`;
+            atualizarInterfaceGerente();
+        }
+
+        // ---------- DADOS ----------
+        async function carregarDadosDoBanco() {
+            try {
+                const [livrosRes, empRes] = await Promise.all([
+                    sb.from('livros').select('*').eq('biblioteca_nome', gerenteAtual.biblioteca),
+                    sb.from('emprestimos').select('*').eq('status', 'Ativo')
+                ]);
+                if (livrosRes.error) throw livrosRes.error;
+                if (empRes.error) throw empRes.error;
+                return {
+                    livros: (livrosRes.data || []).map(mapLivro),
+                    emprestimos: (empRes.data || []).map(mapEmprestimo)
+                };
+            } catch (err) {
+                console.error('[gerente] erro:', err);
+                return { livros: [], emprestimos: [] };
             }
         }
 
-        function copiarLinkLeitor() {
-            const url = window.location.href.replace('gerente.html', 'leitor.html');
-            navigator.clipboard.writeText(url);
-            alert('Link público da estante copiado!');
+        // ---------- CADASTRO DE LIVRO ----------
+        async function cadastrarLivro(ev) {
+            ev.preventDefault();
+            const file = document.getElementById('livroFotoFile').files[0];
+            if (!file) { alert('Selecione uma foto de capa.'); return; }
+
+            // Upload no Storage (bucket "capas")
+            const ext = file.name.split('.').pop();
+            const path = `${gerenteAtual.id}/${Date.now()}.${ext}`;
+            const { error: upErr } = await sb.storage.from('capas').upload(path, file, { upsert: false });
+            if (upErr) { alert('Erro upload: ' + upErr.message); return; }
+
+            const { data: pub } = sb.storage.from('capas').getPublicUrl(path);
+            const novoId = 'LIV-' + Date.now().toString(36).toUpperCase();
+
+            const { error } = await sb.from('livros').insert([{
+                codigo_livro: novoId,
+                biblioteca_nome: gerenteAtual.biblioteca,
+                titulo: document.getElementById('livroTitulo').value,
+                autor: document.getElementById('livroAutor').value,
+                categoria: document.getElementById('livroCategoria').value,
+                foto: pub.publicUrl,
+                quantidade_total: Number(document.getElementById('livroQtd').value),
+                sinopse: document.getElementById('livroSinopse').value
+            }]);
+
+            if (error) { alert('Erro ao cadastrar: ' + error.message); return; }
+
+            document.getElementById('formLivro').reset();
+            atualizarInterfaceGerente();
         }
 
-        if(localStorage.getItem('gerente_logado') === 'true') {
-            mostrarPainelGerente();
+        // ---------- EMPRÉSTIMO ----------
+        async function registrarEmprestimo(ev) {
+            ev.preventDefault();
+            const idLivro = document.getElementById('empLivroId').value;
+            const db = await carregarDadosDoBanco();
+            const livro = db.livros.find(l => l.id === idLivro);
+            if (!livro) { alert('Livro não encontrado.'); return; }
+
+            const { data: empsAtivos } = await sb.from('emprestimos')
+                .select('codigo_emp').eq('livro_id', idLivro).eq('status', 'Ativo');
+            const usados = empsAtivos?.length || 0;
+            if (usados >= livro.quantidadeTotal) { alert('Sem exemplares disponíveis.'); return; }
+
+            const novoEmpId = 'EMP-' + Date.now().toString(36).toUpperCase();
+            const { error } = await sb.from('emprestimos').insert([{
+                codigo_emp: novoEmpId,
+                livro_id: idLivro,
+                livro_titulo: livro.titulo,
+                nome_leitor: document.getElementById('empNome').value,
+                cpf_leitor: document.getElementById('empCpf').value,
+                endereco_leitor: document.getElementById('empEndereco').value,
+                data_emp: new Date().toLocaleDateString('pt-BR'),
+                status: 'Ativo'
+            }]);
+
+            if (error) { alert('Erro: ' + error.message); return; }
+            document.getElementById('empFormEmprestimo').reset();
+            atualizarInterfaceGerente();
         }
-        lucide.createIcons();
+
+        async function darBaixaEmprestimo(empId) {
+            const { error } = await sb.from('emprestimos').update({ status: 'Devolvido' }).eq('codigo_emp', empId);
+            if (error) { alert(error.message); return; }
+            atualizarInterfaceGerente();
+        }
+
+        async function excluirLivro(id) {
+            if (!confirm('Excluir livro? Empréstimos vinculados também serão removidos.')) return;
+            const { error } = await sb.from('livros').delete().eq('codigo_livro', id);
+            if (error) { alert(error.message); return; }
+            atualizarInterfaceGerente();
+        }
+
+        // ---------- INTERFACE ----------
+        async function atualizarInterfaceGerente() {
+            if (!gerenteAtual) return;
+            const db = await carregarDadosDoBanco();
+
+            // Select de livros
+            const sel = document.getElementById('empLivroId');
+            sel.innerHTML = '<option value="">Selecione o livro...</option>' +
+                db.livros.map(l => `<option value="${l.id}">${l.titulo} — ${l.autor}</option>`).join('');
+
+            // Lista de livros
+            document.getElementById('listaMeusLivros').innerHTML = db.livros.length
+                ? db.livros.map(l => `
+            <div class="flex justify-between items-center border-b py-2">
+              <div><b>${l.titulo}</b> — ${l.autor} <span class="text-xs text-slate-400">(${l.quantidadeTotal} ex.)</span></div>
+              <button onclick="excluirLivro('${l.id}')" class="text-red-600 text-xs font-bold">Excluir</button>
+            </div>`).join('')
+                : '<p class="text-slate-400">Nenhum livro cadastrado.</p>';
+
+            // Lista de empréstimos ativos (filtra pelos livros da biblioteca)
+            const idsBiblioteca = new Set(db.livros.map(l => l.id));
+            const ativos = db.emprestimos.filter(e => idsBiblioteca.has(e.livroId));
+            document.getElementById('listaEmprestimos').innerHTML = ativos.length
+                ? ativos.map(e => `
+            <div class="flex justify-between items-center border-b py-2">
+              <div><b>${e.livroTitulo}</b> → ${e.nome} (${e.cpf}) em ${e.data}</div>
+              <button onclick="darBaixaEmprestimo('${e.id}')" class="bg-green-600 text-white text-xs px-3 py-1 rounded-lg">Devolver</button>
+            </div>`).join('')
+                : '<p class="text-slate-400">Nenhum empréstimo ativo.</p>';
+        }
+
+        // ---------- BOOTSTRAP ----------
+        window.addEventListener('load', async () => {
+            // Se já houver sessão ativa, refaz login automático
+            const { data: { session } } = await sb.auth.getSession();
+            if (session) {
+                const email = session.user.email;
+                const { data: gRows } = await sb.from('gerentes').select('*').eq('email', email).limit(1);
+                if (gRows && gRows[0]) {
+                    gerenteAtual = {
+                        id: gRows[0].codigo_mgr,
+                        biblioteca: gRows[0].biblioteca,
+                        gerente: gRows[0].gerente,
+                        email
+                    };
+                    mostrarPainel();
+                }
+            }
+        });
     </script>
 </body>
+
 </html>
