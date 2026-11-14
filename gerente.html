@@ -4,283 +4,307 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Workspace do Gerente • Bibliotech</title>
+    <title>Workspace do Gerente - Bibliotech</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>tailwind.config = { darkMode: 'class' }</script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#6b21a8">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-
-    <!-- Importação do SDK do Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        const SUPABASE_URL = ' https://gwdpnesdtifwvcbxbkko.supabase.co ';
-        const SUPABASE_ANON_KEY = ' sb_publishable_GtiWd4H_VxZXZwbXEBHuow_YOxFuF_N ';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        // Exemplo de função para buscar livros do Supabase na Estante do Leitor:
-        async function carregarLivrosDoSupabase() {
-            const { data, error } = await supabaseClient.from('livros').select('*');
-            if (error) {
-                console.error('Erro ao buscar livros:', error);
-                return [];
-            }
-            return data;
-        }
-    </script>
+    <script src="https://unpkg.com/lucide@0.436.0/dist/umd/lucide.min.js"></script>
+    <script src="config.js"></script>
 </head>
 
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen transition-colors">
+<body class="bg-slate-50 font-sans min-h-screen">
 
-    <!-- LOGIN DO GERENTE -->
-    <div id="loginGerente" class="min-h-screen flex items-center justify-center p-4">
-        <div class="bg-white/90 dark:bg-slate-900 border border-purple-200 p-8 rounded-3xl shadow-2xl max-w-md w-full">
-            <div class="text-center mb-6">
-                <div
-                    class="bg-gradient-to-tr from-green-400 to-purple-600 text-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                    <i data-lucide="user-cog" class="w-8 h-8"></i>
-                </div>
-                <h1 class="text-2xl font-extrabold">Acesso Restrito</h1>
-                <p class="text-xs text-purple-600 font-semibold mt-1">Painel do Gerente da Biblioteca</p>
-            </div>
+    <!-- TELA DE LOGIN -->
+    <section id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
+        <form onsubmit="loginGerente(event)" class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md space-y-4">
+            <h1 class="text-2xl font-extrabold text-purple-700 text-center">Bibliotech • Gerente</h1>
+            <input id="loginEmail" type="email" required placeholder="E-mail" class="w-full border p-3 rounded-xl">
+            <input id="loginSenha" type="password" required placeholder="Senha" class="w-full border p-3 rounded-xl">
+            <button
+                class="w-full bg-purple-700 text-white font-bold py-3 rounded-xl hover:bg-purple-800">Entrar</button>
+            <p id="loginErro" class="text-red-600 text-sm text-center hidden"></p>
+        </form>
+    </section>
 
-            <form onsubmit="fazerLoginGerente(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold mb-1">Usuário (Login)</label>
-                    <input type="text" id="userMgr" required
-                        class="w-full bg-slate-50 dark:bg-slate-950 border p-3 rounded-xl">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold mb-1">Senha</label>
-                    <div class="relative flex items-center">
-                        <input type="password" id="passMgr" required
-                            class="w-full bg-slate-50 dark:bg-slate-950 border p-3 rounded-xl pr-11">
-                        <button type="button" onclick="toggleSenhaGerente()"
-                            class="absolute right-3 text-slate-400 hover:text-purple-600 p-1">
-                            <i data-lucide="eye" id="iconEyeGerente" class="w-5 h-5"></i>
-                        </button>
-                    </div>
-                </div>
-                <button type="submit"
-                    class="w-full bg-gradient-to-r from-green-500 to-purple-600 text-white font-bold py-3 rounded-xl shadow-md">Entrar
-                    no Workspace</button>
-            </form>
-            <div id="erroLogin"
-                class="hidden mt-4 p-3 bg-red-50 text-red-600 text-xs text-center rounded-xl font-semibold"></div>
-        </div>
-    </div>
-
-    <!-- PAINEL DO GERENTE -->
-    <div id="panelGerente" class="hidden min-h-screen flex flex-col">
-        <header
-            class="bg-white/90 dark:bg-slate-900 border-b sticky top-0 z-50 px-6 py-4 flex justify-between items-center shadow-sm">
-            <div class="flex items-center gap-3">
-                <div class="bg-gradient-to-tr from-green-500 to-emerald-600 p-2.5 rounded-xl text-white">
-                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-base">Workspace do Gerente</h1>
-                    <p id="nomeBibliotecaCabecalho" class="text-[10px] text-emerald-600 font-bold">Unidade Operacional
-                    </p>
-                </div>
+    <!-- PAINEL -->
+    <section id="painel" class="hidden p-6 max-w-6xl mx-auto space-y-8">
+        <header class="flex justify-between items-center bg-white p-4 rounded-2xl shadow">
+            <div>
+                <h2 id="bibNome" class="font-bold text-lg text-slate-800"></h2>
+                <p id="bibGerente" class="text-xs text-slate-500"></p>
             </div>
-            <div class="flex items-center gap-3">
-                <button onclick="copiarLinkLeitor()"
-                    class="bg-purple-100 text-purple-700 text-xs px-4 py-2.5 rounded-xl font-bold flex items-center gap-2">
-                    <i data-lucide="link" class="w-4 h-4"></i> Link do Leitor
-                </button>
-                <button onclick="logoutGerente()"
-                    class="bg-pink-50 text-pink-600 px-4 py-2.5 rounded-xl text-xs font-bold">Sair</button>
-            </div>
+            <button onclick="logoutGerente()"
+                class="text-sm bg-red-100 text-red-700 px-4 py-2 rounded-xl font-semibold">Sair</button>
         </header>
 
-        <main class="max-w-7xl mx-auto p-6 space-y-8 flex-1 w-full">
+        <!-- CADASTRO LIVRO -->
+        <form id="formLivro" onsubmit="cadastrarLivro(event)" class="bg-white p-6 rounded-3xl shadow space-y-3">
+            <h3 class="font-bold text-purple-700">➕ Cadastrar Livro</h3>
+            <input id="livroTitulo" required placeholder="Título" class="w-full border p-2 rounded-xl">
+            <input id="livroAutor" required placeholder="Autor" class="w-full border p-2 rounded-xl">
+            <input id="livroCategoria" required placeholder="Categoria" class="w-full border p-2 rounded-xl">
+            <input id="livroQtd" type="number" min="1" required placeholder="Quantidade"
+                class="w-full border p-2 rounded-xl">
+            <textarea id="livroSinopse" required placeholder="Sinopse" class="w-full border p-2 rounded-xl"
+                rows="3"></textarea>
+            <input id="livroFotoFile" type="file" accept="image/*" class="w-full text-sm">
+            <button
+                class="bg-purple-700 text-white px-6 py-2 rounded-xl font-bold hover:bg-purple-800">Cadastrar</button>
+        </form>
 
-            <!-- INDICADORES -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="bg-white dark:bg-slate-900 border p-6 rounded-3xl shadow-md">
-                    <p class="text-purple-600 text-xs font-bold uppercase">Total de Livros</p>
-                    <h3 id="statLivros" class="text-4xl font-extrabold mt-2">0</h3>
-                </div>
-                <div class="bg-white dark:bg-slate-900 border p-6 rounded-3xl shadow-md">
-                    <p class="text-pink-600 text-xs font-bold uppercase">Empréstimos Ativos</p>
-                    <h3 id="statEmprestimos" class="text-4xl font-extrabold text-pink-600 mt-2">0</h3>
-                </div>
-                <div class="bg-white dark:bg-slate-900 border p-6 rounded-3xl shadow-md">
-                    <p class="text-green-600 text-xs font-bold uppercase">Exemplares Disponíveis</p>
-                    <h3 id="statDisponiveis" class="text-4xl font-extrabold text-green-600 mt-2">0</h3>
-                </div>
-                <div class="bg-white dark:bg-slate-900 border p-6 rounded-3xl shadow-md flex flex-col justify-center">
-                    <p class="text-slate-500 text-xs font-bold uppercase mb-1">Circulação</p>
-                    <div class="space-y-2 mt-2">
-                        <div class="flex justify-between text-xs font-semibold"><span
-                                class="text-green-600">Disp.</span><span class="text-pink-600">Emp.</span></div>
-                        <div class="w-full bg-slate-100 dark:bg-slate-800 h-4 rounded-full overflow-hidden flex border">
-                            <div id="barDisp" class="bg-green-500 h-full transition-all" style="width: 100%"></div>
-                            <div id="barEmp" class="bg-pink-500 h-full transition-all" style="width: 0%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <!-- NOVO EMPRÉSTIMO -->
+        <form id="empFormEmprestimo" onsubmit="registrarEmprestimo(event)"
+            class="bg-white p-6 rounded-3xl shadow space-y-3">
+            <h3 class="font-bold text-blue-700">📖 Novo Empréstimo</h3>
+            <select id="empLivroId" required class="w-full border p-2 rounded-xl">
+                <option value="">Selecione o livro...</option>
+            </select>
+            <input id="empNome" required placeholder="Nome do leitor" class="w-full border p-2 rounded-xl">
+            <input id="empCpf" required placeholder="CPF" class="w-full border p-2 rounded-xl">
+            <input id="empEndereco" required placeholder="Endereço" class="w-full border p-2 rounded-xl">
+            <button class="bg-blue-700 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-800">Registrar</button>
+        </form>
 
-            <!-- FORMULÁRIOS DE CADASTRO E EMPRÉSTIMO -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- CADASTRO DE LIVROS COM ISBN INTELIGENTE -->
-                <div class="bg-white dark:bg-slate-900 border p-6 rounded-3xl shadow-md">
-                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="plus-circle"
-                            class="text-purple-600"></i> Cadastrar Livro</h2>
+        <!-- LISTAS -->
+        <div class="bg-white p-6 rounded-3xl shadow">
+            <h3 class="font-bold text-slate-700 mb-3">📚 Meus Livros</h3>
+            <div id="listaMeusLivros" class="space-y-2 text-sm"></div>
+        </div>
 
-                    <div class="mb-4 p-3 bg-purple-50 dark:bg-purple-950/30 rounded-2xl border">
-                        <label class="block text-xs font-bold text-purple-700 mb-1">Busca Automática por ISBN (Google
-                            Books)</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="isbnInput" placeholder="Ex: 9788535902778"
-                                class="w-full bg-white dark:bg-slate-950 border p-2.5 rounded-xl text-xs font-mono">
-                            <button type="button" onclick="buscarLivroPorISBN()"
-                                class="bg-purple-600 text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-1">Buscar</button>
-                        </div>
-                    </div>
+        <div class="bg-white p-6 rounded-3xl shadow">
+            <h3 class="font-bold text-slate-700 mb-3">📄 Empréstimos Ativos</h3>
+            <div id="listaEmprestimos" class="space-y-2 text-sm"></div>
+        </div>
+    </section>
 
-                    <form id="formLivro" onsubmit="cadastrarLivro(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-bold mb-1">Título</label>
-                            <input type="text" id="livroTitulo" required
-                                class="w-full bg-slate-50 dark:bg-slate-950 border p-3 rounded-xl">
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold mb-1">Autor</label>
-                                <input type="text" id="livroAutor" required
-                                    class="w-full bg-slate-50 dark:bg-slate-950 border p-3 rounded-xl">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold mb-1">Categoria</label>
-                                <input type="text" id="livroCategoria" required
-                                    class="w-full bg-slate-50 dark:bg-slate-950 border p-3 rounded-xl">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold mb-1">Capa (URL ou Arquivo)</label>
-                                <input type="text" id="livroFotoUrl" placeholder="Link da imagem"
-                                    class="w-full bg-slate-50 dark:bg-slate-950 border p-2.5 rounded-xl text-xs mb-1">
-                                <input type="file" id="livroFotoFile" accept="image/*" class="w-full text-xs">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold mb-1">Quantidade</label>
-                                <input type="number" id="livroQtd" min="1" value="1" required
-                                    class="w-full bg-slate-50 dark:bg-slate-950 border p-3 rounded-xl">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold mb-1">Sinopse</label>
-                            <textarea id="livroSinopse" rows="2" required
-                                class="w-full bg-slate-50 dark:bg-slate-950 border p-3 rounded-xl"></textarea>
-                        </div>
-                        <button type="submit"
-                            class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition">Cadastrar
-                            no Acervo</button>
-                    </form>
-                </div>
+    <script>
+        let gerenteAtual = null;
 
-                <!-- REGISTRAR EMPRÉSTIMO -->
-                <div class="bg-white dark:bg-slate-900 border p-6 rounded-3xl shadow-md">
-                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="book-up"
-                            class="text-pink-600"></i> Registrar Empréstimo</h2>
-                    <form id="formEmprestimo" onsubmit="registrarEmprestimo(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-bold mb-1">Selecione o Livro</label>
-                            <select id="empLivroId" required
-                                class="w-full bg-slate-50 dark:bg-slate-950 border p-3 rounded-xl"></select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold mb-1">Nome do Leitor</label>
-                            <input type="text" id="empNome" required
-                                class="w-full bg-slate-50 dark:bg-slate-950 border p-3 rounded-xl">
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold mb-1">CPF</label>
-                                <input type="text" id="empCpf" placeholder="000.000.000-00" required
-                                    class="w-full bg-slate-50 dark:bg-slate-950 border p-3 rounded-xl">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold mb-1">Endereço</label>
-                                <input type="text" id="empEndereco" required
-                                    class="w-full bg-slate-50 dark:bg-slate-950 border p-3 rounded-xl">
-                            </div>
-                        </div>
-                        <button type="submit"
-                            class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-xl transition mt-6">Confirmar
-                            Empréstimo</button>
-                    </form>
-                </div>
-            </div>
+        const mapLivro = (l) => ({
+            id: l.codigo_livro,
+            bibliotecaNome: l.biblioteca_nome,
+            titulo: l.titulo,
+            autor: l.autor,
+            categoria: l.categoria,
+            foto: l.foto,
+            quantidadeTotal: Number(l.quantidade_total),
+            sinopse: l.sinopse
+        });
 
-            <!-- TABELAS -->
-            <!-- Cabeçalho Acervo -->
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-bold">Acervo de Livros</h2>
-                <button onclick="exportarAcervoCSV()"
-                    class="bg-green-100 hover:bg-green-200 text-green-700 text-xs px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1">
-                    <i data-lucide="download" class="w-4 h-4"></i> Exportar
-                </button>
-            </div>
+        const mapEmprestimo = (e) => ({
+            id: e.codigo_emp,
+            livroId: e.livro_id,
+            livroTitulo: e.livro_titulo,
+            nome: e.nome_leitor,
+            cpf: e.cpf_leitor,
+            endereco: e.endereco_leitor,
+            data: e.data_emp,
+            status: e.status
+        });
 
+        // ---------- AUTENTICAÇÃO ----------
+        async function loginGerente(ev) {
+            ev.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const senha = document.getElementById('loginSenha').value;
+            const erroEl = document.getElementById('loginErro');
+            erroEl.classList.add('hidden');
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-12">
-                <div class="bg-white dark:bg-slate-900 border p-6 rounded-3xl shadow-md">
-                    <h2 class="text-lg font-bold mb-4">Acervo de Livros</h2>
-                    <div class="overflow-x-auto max-h-80 overflow-y-auto">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-slate-100 dark:bg-slate-950 text-xs uppercase sticky top-0">
-                                <tr>
-                                    <th class="p-3">Título</th>
-                                    <th class="p-3">Qtd</th>
-                                    <th class="p-3 text-right">Ação</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabelaLivrosGerente"></tbody>
-                        </table>
-                    </div>
-                </div>
+            const { data: authData, error: authErr } = await sb.auth.signInWithPassword({ email, password: senha });
+            if (authErr) {
+                erroEl.textContent = 'Credenciais inválidas.';
+                erroEl.classList.remove('hidden');
+                return;
+            }
 
-                <!-- Cabeçalho Empréstimos -->
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-bold">Empréstimos Ativos</h2>
-                    <button onclick="exportarEmprestimosCSV()"
-                        class="bg-green-100 hover:bg-green-200 text-green-700 text-xs px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1">
-                        <i data-lucide="download" class="w-4 h-4"></i> Exportar
-                    </button>
-                </div>
+            // Busca perfil do gerente vinculado
+            const { data: gRows, error: gErr } = await sb
+                .from('gerentes')
+                .select('*')
+                .eq('email', email)
+                .limit(1);
 
-                <div class="bg-white dark:bg-slate-900 border p-6 rounded-3xl shadow-md">
-                    <h2 class="text-lg font-bold mb-4">Empréstimos Ativos</h2>
-                    <div class="overflow-x-auto max-h-80 overflow-y-auto">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-slate-100 dark:bg-slate-950 text-xs uppercase sticky top-0">
-                                <tr>
-                                    <th class="p-3">Leitor / Livro</th>
-                                    <th class="p-3">Data</th>
-                                    <th class="p-3 text-right">Devolver</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabelaEmprestimosGerente"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            if (gErr || !gRows || gRows.length === 0) {
+                erroEl.textContent = 'Gerente não encontrado.';
+                erroEl.classList.remove('hidden');
+                await sb.auth.signOut();
+                return;
+            }
 
-        </main>
+            const g = gRows[0];
 
-    </div>
+            // Vincula auth_user_id se ainda não estiver vinculado
+            if (!g.auth_user_id) {
+                await sb.from('gerentes').update({ auth_user_id: authData.user.id }).eq('codigo_mgr', g.codigo_mgr);
+            }
 
+            gerenteAtual = {
+                id: g.codigo_mgr,
+                biblioteca: g.biblioteca,
+                gerente: g.gerente,
+                email: g.email
+            };
 
+            mostrarPainel();
+        }
 
-    <!-- CHAMADA DO ARQUIVO JS EXTERNO -->
-    <script src="js/gerente.js"></script>
+        async function logoutGerente() {
+            await sb.auth.signOut();
+            gerenteAtual = null;
+            document.getElementById('painel').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+        }
+
+        function mostrarPainel() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('painel').classList.remove('hidden');
+            document.getElementById('bibNome').textContent = gerenteAtual.biblioteca;
+            document.getElementById('bibGerente').textContent = `Gerente: ${gerenteAtual.gerente}`;
+            atualizarInterfaceGerente();
+        }
+
+        // ---------- DADOS ----------
+        async function carregarDadosDoBanco() {
+            try {
+                const [livrosRes, empRes] = await Promise.all([
+                    sb.from('livros').select('*').eq('biblioteca_nome', gerenteAtual.biblioteca),
+                    sb.from('emprestimos').select('*').eq('status', 'Ativo')
+                ]);
+                if (livrosRes.error) throw livrosRes.error;
+                if (empRes.error) throw empRes.error;
+                return {
+                    livros: (livrosRes.data || []).map(mapLivro),
+                    emprestimos: (empRes.data || []).map(mapEmprestimo)
+                };
+            } catch (err) {
+                console.error('[gerente] erro:', err);
+                return { livros: [], emprestimos: [] };
+            }
+        }
+
+        // ---------- CADASTRO DE LIVRO ----------
+        async function cadastrarLivro(ev) {
+            ev.preventDefault();
+            const file = document.getElementById('livroFotoFile').files[0];
+            if (!file) { alert('Selecione uma foto de capa.'); return; }
+
+            // Upload no Storage (bucket "capas")
+            const ext = file.name.split('.').pop();
+            const path = `${gerenteAtual.id}/${Date.now()}.${ext}`;
+            const { error: upErr } = await sb.storage.from('capas').upload(path, file, { upsert: false });
+            if (upErr) { alert('Erro upload: ' + upErr.message); return; }
+
+            const { data: pub } = sb.storage.from('capas').getPublicUrl(path);
+            const novoId = 'LIV-' + Date.now().toString(36).toUpperCase();
+
+            const { error } = await sb.from('livros').insert([{
+                codigo_livro: novoId,
+                biblioteca_nome: gerenteAtual.biblioteca,
+                titulo: document.getElementById('livroTitulo').value,
+                autor: document.getElementById('livroAutor').value,
+                categoria: document.getElementById('livroCategoria').value,
+                foto: pub.publicUrl,
+                quantidade_total: Number(document.getElementById('livroQtd').value),
+                sinopse: document.getElementById('livroSinopse').value
+            }]);
+
+            if (error) { alert('Erro ao cadastrar: ' + error.message); return; }
+
+            document.getElementById('formLivro').reset();
+            atualizarInterfaceGerente();
+        }
+
+        // ---------- EMPRÉSTIMO ----------
+        async function registrarEmprestimo(ev) {
+            ev.preventDefault();
+            const idLivro = document.getElementById('empLivroId').value;
+            const db = await carregarDadosDoBanco();
+            const livro = db.livros.find(l => l.id === idLivro);
+            if (!livro) { alert('Livro não encontrado.'); return; }
+
+            const { data: empsAtivos } = await sb.from('emprestimos')
+                .select('codigo_emp').eq('livro_id', idLivro).eq('status', 'Ativo');
+            const usados = empsAtivos?.length || 0;
+            if (usados >= livro.quantidadeTotal) { alert('Sem exemplares disponíveis.'); return; }
+
+            const novoEmpId = 'EMP-' + Date.now().toString(36).toUpperCase();
+            const { error } = await sb.from('emprestimos').insert([{
+                codigo_emp: novoEmpId,
+                livro_id: idLivro,
+                livro_titulo: livro.titulo,
+                nome_leitor: document.getElementById('empNome').value,
+                cpf_leitor: document.getElementById('empCpf').value,
+                endereco_leitor: document.getElementById('empEndereco').value,
+                data_emp: new Date().toLocaleDateString('pt-BR'),
+                status: 'Ativo'
+            }]);
+
+            if (error) { alert('Erro: ' + error.message); return; }
+            document.getElementById('empFormEmprestimo').reset();
+            atualizarInterfaceGerente();
+        }
+
+        async function darBaixaEmprestimo(empId) {
+            const { error } = await sb.from('emprestimos').update({ status: 'Devolvido' }).eq('codigo_emp', empId);
+            if (error) { alert(error.message); return; }
+            atualizarInterfaceGerente();
+        }
+
+        async function excluirLivro(id) {
+            if (!confirm('Excluir livro? Empréstimos vinculados também serão removidos.')) return;
+            const { error } = await sb.from('livros').delete().eq('codigo_livro', id);
+            if (error) { alert(error.message); return; }
+            atualizarInterfaceGerente();
+        }
+
+        // ---------- INTERFACE ----------
+        async function atualizarInterfaceGerente() {
+            if (!gerenteAtual) return;
+            const db = await carregarDadosDoBanco();
+
+            // Select de livros
+            const sel = document.getElementById('empLivroId');
+            sel.innerHTML = '<option value="">Selecione o livro...</option>' +
+                db.livros.map(l => `<option value="${l.id}">${l.titulo} — ${l.autor}</option>`).join('');
+
+            // Lista de livros
+            document.getElementById('listaMeusLivros').innerHTML = db.livros.length
+                ? db.livros.map(l => `
+            <div class="flex justify-between items-center border-b py-2">
+              <div><b>${l.titulo}</b> — ${l.autor} <span class="text-xs text-slate-400">(${l.quantidadeTotal} ex.)</span></div>
+              <button onclick="excluirLivro('${l.id}')" class="text-red-600 text-xs font-bold">Excluir</button>
+            </div>`).join('')
+                : '<p class="text-slate-400">Nenhum livro cadastrado.</p>';
+
+            // Lista de empréstimos ativos (filtra pelos livros da biblioteca)
+            const idsBiblioteca = new Set(db.livros.map(l => l.id));
+            const ativos = db.emprestimos.filter(e => idsBiblioteca.has(e.livroId));
+            document.getElementById('listaEmprestimos').innerHTML = ativos.length
+                ? ativos.map(e => `
+            <div class="flex justify-between items-center border-b py-2">
+              <div><b>${e.livroTitulo}</b> → ${e.nome} (${e.cpf}) em ${e.data}</div>
+              <button onclick="darBaixaEmprestimo('${e.id}')" class="bg-green-600 text-white text-xs px-3 py-1 rounded-lg">Devolver</button>
+            </div>`).join('')
+                : '<p class="text-slate-400">Nenhum empréstimo ativo.</p>';
+        }
+
+        // ---------- BOOTSTRAP ----------
+        window.addEventListener('load', async () => {
+            // Se já houver sessão ativa, refaz login automático
+            const { data: { session } } = await sb.auth.getSession();
+            if (session) {
+                const email = session.user.email;
+                const { data: gRows } = await sb.from('gerentes').select('*').eq('email', email).limit(1);
+                if (gRows && gRows[0]) {
+                    gerenteAtual = {
+                        id: gRows[0].codigo_mgr,
+                        biblioteca: gRows[0].biblioteca,
+                        gerente: gRows[0].gerente,
+                        email
+                    };
+                    mostrarPainel();
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>
